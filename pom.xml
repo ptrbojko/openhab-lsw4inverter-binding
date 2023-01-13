@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://maven.apache.org/POM/4.0.0"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.openhab.addons</groupId>
+    <artifactId>org.openhab.addons.reactor</artifactId>
+    <version>3.3.0</version>
+  </parent>
+
+  <groupId>org.openhab.addons.bundles</groupId>
+  <artifactId>org.openhab.binding.lswlogger</artifactId>
+
+  <name>openHAB Add-ons :: Bundles :: LswLogger Binding</name>
+
+  <properties>
+    <report.fail.on.error>false</report.fail.on.error>
+    <spotless.version>2.0.3</spotless.version>
+    <spotless.check.skip>true</spotless.check.skip> <!-- Spotless disabled for now -->
+    <sat.version>0.13.0</sat.version>
+    <maven.compiler.target>11</maven.compiler.target>
+    <maven.compiler.source>11</maven.compiler.source>
+  </properties>
+
+  <dependencies>
+    <dependency>
+			<groupId>org.openhab.core.bom</groupId>
+			<artifactId>org.openhab.core.bom.compile</artifactId>
+			<type>pom</type>
+			<scope>provided</scope>
+		</dependency>
+    <dependency>
+			<groupId>org.openhab.core.bom</groupId>
+			<artifactId>org.openhab.core.bom.openhab-core</artifactId>
+			<type>pom</type>
+			<scope>provided</scope>
+		</dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+				<groupId>org.commonjava.maven.plugins</groupId>
+				<artifactId>directory-maven-plugin</artifactId>
+				<version>0.3.1</version>
+				<executions>
+					<execution>
+						<id>directories</id>
+						<phase>none</phase>
+						<goals>
+							<goal>directory-of</goal>
+						</goals>
+						<configuration>
+							<property>basedirRoot</property>
+							<project>
+								<groupId>org.openhab.addons</groupId>
+								<artifactId>org.openhab.addons.reactor</artifactId>
+							</project>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+    </plugins>
+  </build>
+
+  <repositories>
+    <repository>
+      <id>jcenter</id>
+      <name>JCenter Repository</name>
+      <url>https://jcenter.bintray.com</url>
+      <releases>
+        <enabled>true</enabled>
+        <updatePolicy>never</updatePolicy>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+    <repository>
+      <id>openhab-artifactory-release</id>
+      <name>JFrog Artifactory Repository</name>
+      <url>https://openhab.jfrog.io/openhab/libs-release</url>
+      <releases>
+        <enabled>true</enabled>
+        <updatePolicy>never</updatePolicy>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+    <repository>
+      <id>openhab-snapshots-release</id>
+      <name>JFrog Artifactory Repository</name>
+      <url>https://openhab.jfrog.io/openhab/libs-snapshot-local</url>
+      <releases>
+        <enabled>false</enabled>
+        <updatePolicy>never</updatePolicy>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
+
+  <pluginRepositories>
+    <pluginRepository>
+      <id>jcenter</id>
+      <url>https://jcenter.bintray.com</url>
+    </pluginRepository>
+    <pluginRepository>
+      <id>openhab-artifactory-release</id>
+      <url>https://openhab.jfrog.io/openhab/libs-release</url>
+    </pluginRepository>
+  </pluginRepositories>
+
+
+</project>
