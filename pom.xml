@@ -23,6 +23,7 @@
     <sat.version>0.13.0</sat.version>
     <maven.compiler.target>11</maven.compiler.target>
     <maven.compiler.source>11</maven.compiler.source>
+    <basedirRoot>etc</basedirRoot>
   </properties>
 
   <dependencies>
