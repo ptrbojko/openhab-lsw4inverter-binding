@@ -50,7 +50,7 @@ public class StateMachine<C extends Context> implements StateMachineSwitchable {
     public void close() {
         closed = true;
         if (current != null) {
-            current.getState().close();
+            current.getState().close(context, configuration);
         }
     }
 

@@ -12,17 +12,11 @@
  */
 package org.openhab.binding.lswlogger.internal.protocolv5.lsw3;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.channels.AsynchronousSocketChannel;
-import java.util.concurrent.TimeUnit;
-
 import org.eclipse.jdt.annotation.NonNull;
 import org.openhab.binding.lswlogger.internal.LoggerThingConfiguration;
 import org.openhab.binding.lswlogger.internal.LswLoggerBindingConstants;
-import org.openhab.binding.lswlogger.internal.LswLoggerBindingConstants.Common;
 import org.openhab.binding.lswlogger.internal.LswLoggerBindingConstants.InitialDataValues;
-import org.openhab.binding.lswlogger.internal.connection.Context;
+import org.openhab.binding.lswlogger.internal.protocolv5.AbstractLoggerHandler;
 import org.openhab.binding.lswlogger.internal.protocolv5.ResponseDispatcher;
 import org.openhab.binding.lswlogger.internal.protocolv5.UnknownResponseHandler;
 import org.openhab.binding.lswlogger.internal.protocolv5.lsw3.states.ConnectingState;
@@ -35,14 +29,7 @@ import org.openhab.binding.lswlogger.internal.protocolv5.lsw3.states.WaitingToWa
 import org.openhab.binding.lswlogger.internal.protocolv5.states.ProtocolState;
 import org.openhab.binding.lswlogger.internal.protocolv5.states.StateBuilder;
 import org.openhab.binding.lswlogger.internal.protocolv5.states.StateMachine;
-import org.openhab.core.library.types.OnOffType;
-import org.openhab.core.thing.ChannelUID;
 import org.openhab.core.thing.Thing;
-import org.openhab.core.thing.ThingStatus;
-import org.openhab.core.thing.ThingStatusDetail;
-import org.openhab.core.thing.binding.BaseThingHandler;
-import org.openhab.core.types.Command;
-import org.openhab.core.types.State;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,14 +40,12 @@ import org.slf4j.LoggerFactory;
  * @author Piotr Bojko - Initial contribution
  */
 
-public class LswLoggerHandler extends BaseThingHandler {
+public class LswLoggerHandler extends AbstractLoggerHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(LswLoggerHandler.class);
 
     private static final int FROM_REGISTER = 0x0000;
     private static final int TO_REGISTER = 0x0027;
-
-    private final ByteBuffer response = ByteBuffer.allocate(1024);
 
     private StateMachine<LswLoggerHandlerContext> stateMachine;
 
@@ -69,16 +54,9 @@ public class LswLoggerHandler extends BaseThingHandler {
     }
 
     @Override
-    public void handleCommand(@NonNull ChannelUID channelUID, @NonNull Command command) {
-    }
-
-    @Override
-    public void initialize() {
-        updateStatus(ThingStatus.UNKNOWN);
-        disconnectWhenNeeded();
-        stateMachine = createStateMachine(new LswLoggerHandlerContext(),
+    protected StateMachine<?> createStateMachine() {
+        return createStateMachine(new LswLoggerHandlerContext(),
                 this.getConfigAs(LoggerThingConfiguration.class));
-        stateMachine.start();
     }
 
     private StateMachine<LswLoggerHandlerContext> createStateMachine(
@@ -122,40 +100,15 @@ public class LswLoggerHandler extends BaseThingHandler {
                 new UnknownResponseHandler());
     }
 
-    private void disconnectWhenNeeded() {
-        if (stateMachine != null) {
-            stateMachine.close();
-        }
-    }
+    private class LswLoggerHandlerContext extends AbstractLoggerHandler.AbstractContext {
 
-    @Override
-    public void handleRemoval() {
-        super.handleRemoval();
-        disconnectWhenNeeded();
-    }
-
-    @Override
-    public void dispose() {
-        super.dispose();
-        disconnectWhenNeeded();
-    }
-
-    private class LswLoggerHandlerContext implements Context {
-
-        @Override
-        public ByteBuffer response() {
-            response.clear();
-            return response;
-        }
-
-        @Override
-        public void schedule(int i, TimeUnit unit, Runnable runnable) {
-            scheduler.schedule(runnable, i, unit);
+        public LswLoggerHandlerContext() {
+            super(LswLoggerHandler.this);
         }
 
         @Override
         public void notifyLoggerIsOffline() {
-            updateState(Common.onlineChannel, OnOffType.OFF);
+            super.notifyLoggerIsOffline();
             updateState(LswLoggerBindingConstants.LSWLoggerV5.gridAVoltageChannel, InitialDataValues.ZERO_VOLTS);
             updateState(LswLoggerBindingConstants.LSWLoggerV5.gridACurrentChannel, InitialDataValues.ZERO_AMPERES);
             updateState(LswLoggerBindingConstants.LSWLoggerV5.gridAPowerChannel, InitialDataValues.ZERO_WATTS);
@@ -167,47 +120,6 @@ public class LswLoggerHandler extends BaseThingHandler {
             updateState(LswLoggerBindingConstants.LSWLoggerV5.Phase1CurrentChannel, InitialDataValues.ZERO_AMPERES);
             updateState(LswLoggerBindingConstants.LSWLoggerV5.Phase2CurrentChannel, InitialDataValues.ZERO_AMPERES);
             updateState(LswLoggerBindingConstants.LSWLoggerV5.Phase3CurrentChannel, InitialDataValues.ZERO_AMPERES);
-        }
-
-        @Override
-        public void notifyCannotRecover() {
-            LswLoggerHandler.this.updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR);
-        }
-
-        @Override
-        public void updateState(@NonNull String uuid, @NonNull State state) {
-            LswLoggerHandler.this.updateState(uuid, state);
-
-        }
-
-        @Override
-        public void updateStatus(@NonNull ThingStatus status) {
-            LswLoggerHandler.this.updateStatus(status);
-
-        }
-
-        @Override
-        public int getRetries() {
-            // TODO Auto-generated method stub
-            return 0;
-        }
-
-        @Override
-        public void setRetries(int r) {
-            // TODO Auto-generated method stub
-
-        }
-
-        @Override
-        public void openChannel() throws IOException {
-            // TODO Auto-generated method stub
-
-        }
-
-        @Override
-        public AsynchronousSocketChannel channel() {
-            // TODO Auto-generated method stub
-            return null;
         }
     }
 }

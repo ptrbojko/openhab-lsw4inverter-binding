@@ -12,7 +12,7 @@ public class StateBuilder<C extends Context> {
     private final Map<ProtocolState<C>, ProtocolStateMeta<C>> states = new HashMap<>();
     private C context;
     private LoggerThingConfiguration configuration;
-    private ProtocolState<? extends C> initialState;
+    private ProtocolState<C> initialState;
 
     public StateBuilder<C> addState(ProtocolState<C> state, Consumer<RouteConfigurer<C>> routeConfiguration) {
         RouteBuilder<C> builder = new RouteBuilder<>();
@@ -21,7 +21,7 @@ public class StateBuilder<C extends Context> {
         return this;
     }
 
-    public StateBuilder<C> setInitial(ProtocolState<? extends C> initialState) {
+    public StateBuilder<C> setInitial(ProtocolState<C> initialState) {
         this.initialState = initialState;
         return this;
     }

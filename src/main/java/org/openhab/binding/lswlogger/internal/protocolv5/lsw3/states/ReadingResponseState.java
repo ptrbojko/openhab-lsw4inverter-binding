@@ -32,6 +32,7 @@ public class ReadingResponseState<C extends Context> implements ProtocolState<C>
     private static final Logger logger = LoggerFactory.getLogger(ReadingResponseState.class);
 
     private final ResponseDispatcher responseDispatcher;
+    private final ByteBuffer response = ByteBuffer.allocate(1024);
 
     public ReadingResponseState(ResponseDispatcher responseDispatcher) {
         this.responseDispatcher = responseDispatcher;
@@ -39,7 +40,6 @@ public class ReadingResponseState<C extends Context> implements ProtocolState<C>
 
     @Override
     public void tick(StateMachineSwitchable sm, C context, LoggerThingConfiguration configuration) {
-        ByteBuffer response = context.response();
         response.clear();
         context.channel().read(response, null, new ReadingHandler(sm, context, response));
     }

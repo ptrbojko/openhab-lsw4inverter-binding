@@ -1,72 +1,112 @@
 package org.openhab.binding.lswlogger.internal.protocolv5;
 
-import java.nio.ByteBuffer;
+import java.io.IOException;
+import java.nio.channels.AsynchronousSocketChannel;
+import java.util.concurrent.TimeUnit;
 
-import org.openhab.binding.lswlogger.internal.LoggerThingConfiguration;
+import org.eclipse.jdt.annotation.NonNull;
+import org.openhab.binding.lswlogger.internal.LswLoggerBindingConstants;
 import org.openhab.binding.lswlogger.internal.connection.Context;
-import org.openhab.binding.lswlogger.internal.protocolv5.lsw3.LswLoggerHandler;
-import org.openhab.binding.lswlogger.internal.protocolv5.states.ProtocolState;
+import org.openhab.binding.lswlogger.internal.protocolv5.states.StateMachine;
+import org.openhab.core.library.types.OnOffType;
 import org.openhab.core.thing.ChannelUID;
 import org.openhab.core.thing.Thing;
 import org.openhab.core.thing.ThingStatus;
+import org.openhab.core.thing.ThingStatusDetail;
 import org.openhab.core.thing.binding.BaseThingHandler;
 import org.openhab.core.types.Command;
+import org.openhab.core.types.State;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class AbstractLoggerHandler extends BaseThingHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(LswLoggerHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(AbstractLoggerHandler.class);
 
-    private final ResponseDispatcher responseDispatcher;
-    private final ByteBuffer response = ByteBuffer.allocate(1024);
-    private Context context;
-    private LoggerThingConfiguration configuration;
-    private ByteBuffer request;
+    private StateMachine<?> stateMachine;
 
-    public AbstractLoggerHandler(Thing thing, ResponseDispatcher responseDispatcher) {
+    public AbstractLoggerHandler(Thing thing) {
         super(thing);
-        this.responseDispatcher = responseDispatcher;
     }
 
     @Override
-    public void initialize() {
+    public final void initialize() {
         updateStatus(ThingStatus.UNKNOWN);
         disconnectWhenNeeded();
-        context = createContext();
-        configuration = this.getConfigAs(LoggerThingConfiguration.class);
-        request = createRequest();
-        request.flip();
-        StateMaBui
+        stateMachine = createStateMachine();
+        stateMachine.start();
     }
 
-    protected abstract ByteBuffer createRequest();
-
-    protected abstract Context createContext();
-
-    protected abstract ProtocolState createInitialState();
+    protected abstract StateMachine<?> createStateMachine();
 
     private void disconnectWhenNeeded() {
-        if (context != null) {
-            context.close();
+        if (stateMachine != null) {
+            stateMachine.close();
         }
     }
 
     @Override
-    public void handleRemoval() {
+    public final void handleRemoval() {
         super.handleRemoval();
         disconnectWhenNeeded();
     }
 
     @Override
-    public void dispose() {
+    public final void dispose() {
         super.dispose();
         disconnectWhenNeeded();
     }
 
     @Override
-    public void handleCommand(ChannelUID channelUID, Command command) {
+    public final void handleCommand(ChannelUID channelUID, Command command) {
         // no op
+    }
+
+    public static class AbstractContext implements Context {
+
+        private final AbstractLoggerHandler handler;
+
+        private AsynchronousSocketChannel channel;
+
+        public AbstractContext(AbstractLoggerHandler handler) {
+            this.handler = handler;
+        }
+
+        @Override
+        public final void schedule(int i, TimeUnit unit, Runnable runnable) {
+            handler.scheduler.schedule(runnable, i, unit);
+        }
+
+        @Override
+        public final void openChannel() throws IOException {
+            channel = AsynchronousSocketChannel.open();
+        }
+
+        @Override
+        public final AsynchronousSocketChannel channel() {
+            return channel;
+        }
+
+        @Override
+        public void notifyLoggerIsOffline() {
+            updateState(LswLoggerBindingConstants.Common.onlineChannel, OnOffType.OFF);
+        }
+
+        @Override
+        public final void notifyCannotRecover() {
+            handler.updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR);
+        }
+
+        @Override
+        public final void updateState(@NonNull String uuid, @NonNull State state) {
+            handler.updateState(uuid, state);
+        }
+
+        @Override
+        public final void updateStatus(@NonNull ThingStatus status) {
+            handler.updateStatus(status);
+        }
+
     }
 
 }
