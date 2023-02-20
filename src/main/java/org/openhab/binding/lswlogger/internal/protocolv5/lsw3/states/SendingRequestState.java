@@ -10,41 +10,47 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.openhab.binding.lswlogger.internal.protocolv5.states;
+package org.openhab.binding.lswlogger.internal.protocolv5.lsw3.states;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 import java.util.concurrent.TimeUnit;
 
 import org.openhab.binding.lswlogger.internal.LoggerThingConfiguration;
 import org.openhab.binding.lswlogger.internal.connection.Context;
-import org.openhab.binding.lswlogger.internal.connection.LoggerConnectionState;
+import org.openhab.binding.lswlogger.internal.connection.StateMachineSwitchable;
+import org.openhab.binding.lswlogger.internal.protocolv5.RequestFactory;
+import org.openhab.binding.lswlogger.internal.protocolv5.states.ProtocolState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SendingRequestState implements LoggerConnectionState {
+public class SendingRequestState<C extends Context> implements ProtocolState<C> {
 
     private static final Logger logger = LoggerFactory.getLogger(SendingRequestState.class);
     private static final int SENDING_TIMEOUT = 10;
 
-    private final AsynchronousSocketChannel channel;
+    private final int fromRegister;
+    private final int toRegister;
 
-    public SendingRequestState(AsynchronousSocketChannel channel) {
-        this.channel = channel;
+    public SendingRequestState(int fromRegister, int toRegister) {
+        this.fromRegister = fromRegister; // 0x0484;// 0x0000;
+        this.toRegister = toRegister; // 0x04AF;// 0x0027;
     }
 
     @Override
-    public void tick(Context context, LoggerThingConfiguration configuration) {
-        ByteBuffer request = context.request();
-        channel.write(request, SENDING_TIMEOUT, TimeUnit.SECONDS, request, new SendingHandler(context));
+    public void tick(StateMachineSwitchable sm, C context, LoggerThingConfiguration configuration) {
+        ByteBuffer request = RequestFactory
+                .create(configuration.getSerialNumber(), fromRegister, toRegister)
+                .flip()
+                .clear();
+        context.channel().write(request, SENDING_TIMEOUT, TimeUnit.SECONDS, request, new SendingHandler(sm, context));
     }
 
     @Override
-    public void close() {
+    public void close(C context, LoggerThingConfiguration configuration) {
         try {
-            channel.close();
+            context.channel().close();
         } catch (IOException e) {
             logger.error("Cannot disconnect from channel", e);
         }
@@ -53,8 +59,10 @@ public class SendingRequestState implements LoggerConnectionState {
     private class SendingHandler implements CompletionHandler<Integer, ByteBuffer> {
 
         private final Context context;
+        private final StateMachineSwitchable sm;
 
-        public SendingHandler(Context context) {
+        public SendingHandler(StateMachineSwitchable sm, Context context) {
+            this.sm = sm;
             this.context = context;
         }
 
@@ -62,20 +70,20 @@ public class SendingRequestState implements LoggerConnectionState {
         public void completed(Integer bytesWritten, ByteBuffer request) {
             if (bytesWritten < 0) {
                 logger.error("Write problem, remain bytes count to be sent {}", request.remaining());
-                context.switchTo(new ReconnectingState(channel, 0));
+                sm.switchToExceptionState();
                 return;
             }
             if (request.hasRemaining()) {
-                channel.write(request, null, this);
+                context.channel().write(request, null, this);
                 return;
             }
-            context.switchTo(new ReadingResponseState(channel));
+            sm.switchToNextState();
         }
 
         @Override
         public void failed(Throwable t, ByteBuffer unused) {
             logger.error("Failed to write to channel", t);
-            context.switchTo(new ReconnectingState(channel, 0));
+            sm.switchToExceptionState();
         }
     }
 }

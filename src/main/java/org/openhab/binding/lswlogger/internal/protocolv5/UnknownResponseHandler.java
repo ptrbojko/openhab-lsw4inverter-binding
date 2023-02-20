@@ -22,16 +22,9 @@ public class UnknownResponseHandler implements ResponseHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(UnknownResponseHandler.class);
 
-    private final String thingId;
-
-    public UnknownResponseHandler(String thingId) {
-        this.thingId = thingId;
-    }
-
     @Override
     public boolean accept(ByteBuffer buffer) {
-        logger.warn("Unknown response from logger {}, length {}: {}", thingId, buffer.remaining(),
-                ByteUtils.toHex(buffer));
+        logger.warn("Unknown response, length {}: {}", buffer.remaining(), ByteUtils.toHex(buffer));
         return true;
     }
 }

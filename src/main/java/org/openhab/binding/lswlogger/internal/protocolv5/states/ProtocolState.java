@@ -10,12 +10,16 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.openhab.binding.lswlogger.internal.connection;
+package org.openhab.binding.lswlogger.internal.protocolv5.states;
 
 import org.openhab.binding.lswlogger.internal.LoggerThingConfiguration;
+import org.openhab.binding.lswlogger.internal.connection.Context;
+import org.openhab.binding.lswlogger.internal.connection.StateMachineSwitchable;
 
-public interface LoggerConnectionState {
-    void tick(Context context, LoggerThingConfiguration configuration);
+public interface ProtocolState<C extends Context> {
 
-    void close();
+    void tick(StateMachineSwitchable stateMachine, C context, LoggerThingConfiguration configuration);
+
+    void close(C context, LoggerThingConfiguration configuration);
+
 }

@@ -10,32 +10,26 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.openhab.binding.lswlogger.internal.protocolv5.states;
+package org.openhab.binding.lswlogger.internal.protocolv5.lsw3.states;
 
 import org.openhab.binding.lswlogger.internal.LoggerThingConfiguration;
 import org.openhab.binding.lswlogger.internal.connection.Context;
-import org.openhab.binding.lswlogger.internal.connection.LoggerConnectionState;
+import org.openhab.binding.lswlogger.internal.connection.StateMachineSwitchable;
+import org.openhab.binding.lswlogger.internal.protocolv5.states.ProtocolState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class UnrecoverableErrorState implements LoggerConnectionState {
+public class UnrecoverableErrorState<C extends Context> implements ProtocolState<C> {
 
     private static final Logger logger = LoggerFactory.getLogger(UnrecoverableErrorState.class);
 
-    private final LoggerConnectionState previousState;
-
-    public UnrecoverableErrorState(LoggerConnectionState previousState) {
-        this.previousState = previousState;
-    }
-
     @Override
-    public void tick(Context context, LoggerThingConfiguration configuration) {
+    public void tick(StateMachineSwitchable sm, C context, LoggerThingConfiguration configuration) {
         logger.error("Giving up connecting to logger");
         context.notifyCannotRecover();
     }
 
     @Override
-    public void close() {
-        previousState.close();
+    public void close(C context, LoggerThingConfiguration configuration) {
     }
 }

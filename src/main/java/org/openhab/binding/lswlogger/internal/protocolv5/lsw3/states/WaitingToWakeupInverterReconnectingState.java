@@ -10,11 +10,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.openhab.binding.lswlogger.internal.protocolv5.states;
+package org.openhab.binding.lswlogger.internal.protocolv5.lsw3.states;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -22,38 +21,30 @@ import java.util.concurrent.TimeUnit;
 
 import org.openhab.binding.lswlogger.internal.LoggerThingConfiguration;
 import org.openhab.binding.lswlogger.internal.connection.Context;
-import org.openhab.binding.lswlogger.internal.connection.LoggerConnectionState;
+import org.openhab.binding.lswlogger.internal.connection.StateMachineSwitchable;
+import org.openhab.binding.lswlogger.internal.protocolv5.states.ProtocolState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class WaitingToWakeupInverterReconnectingState implements LoggerConnectionState {
+public class WaitingToWakeupInverterReconnectingState<C extends Context> implements ProtocolState<C> {
 
     private static final Logger logger = LoggerFactory.getLogger(WaitingToWakeupInverterReconnectingState.class);
 
-    private final Instant enterTimestamp;
-    private AsynchronousSocketChannel channel;
 
-    public WaitingToWakeupInverterReconnectingState(AsynchronousSocketChannel channel) {
-        this(channel, Instant.now());
-    }
-
-    public WaitingToWakeupInverterReconnectingState(AsynchronousSocketChannel channel, Instant enterTimestamp) {
-        this.channel = channel;
-        this.enterTimestamp = enterTimestamp;
-    }
+    private final EnterWaitPeriodGate enterGate = new EnterWaitPeriodGate();
 
     @Override
-    public void tick(Context context, LoggerThingConfiguration configuration) {
-        if (enterTimestamp.plus(configuration.getMaxOfflineTime(), ChronoUnit.MINUTES).isBefore(Instant.now())) {
-            context.switchTo(new UnrecoverableErrorState(this));
+    public void tick(StateMachineSwitchable sm, C context, LoggerThingConfiguration configuration) {
+        if (enterGate.enterWaitPeriod().plus(configuration.getMaxOfflineTime(), ChronoUnit.MINUTES)
+                .isBefore(Instant.now())) {
+            sm.switchToErrorState();
             return;
         }
         context.notifyLoggerIsOffline();
-        close();
-        reopenChannel();
+        reopenChannel(context, configuration);
         context.schedule(calculateWaitPeriod(configuration), TimeUnit.MINUTES, () -> {
-            channel.connect(new InetSocketAddress(configuration.getHostname(), configuration.getPort()), null,
-                    new ReconnectingHandler(context));
+            context.channel().connect(new InetSocketAddress(configuration.getHostname(), configuration.getPort()), null,
+                    new ReconnectingHandler(sm));
         });
     }
 
@@ -61,18 +52,19 @@ public class WaitingToWakeupInverterReconnectingState implements LoggerConnectio
         return (int) Math.sqrt(configuration.getMaxOfflineTime());
     }
 
-    private void reopenChannel() {
+    private void reopenChannel(C context, LoggerThingConfiguration configuration) {
+        close(context, configuration);
         try {
-            channel = AsynchronousSocketChannel.open();
+            context.openChannel();
         } catch (IOException e) {
             logger.warn("Problem reopening channel", e);
         }
     }
 
     @Override
-    public void close() {
+    public void close(C context, LoggerThingConfiguration configuration) {
         try {
-            channel.close();
+            context.channel().close();
         } catch (IOException e) {
             logger.error("Cannot disconnect from channel", e);
         }
@@ -80,21 +72,38 @@ public class WaitingToWakeupInverterReconnectingState implements LoggerConnectio
 
     private class ReconnectingHandler implements CompletionHandler<Void, Void> {
 
-        private final Context context;
+        private final StateMachineSwitchable sm;
 
-        public ReconnectingHandler(Context context) {
-            this.context = context;
+        public ReconnectingHandler(StateMachineSwitchable sm) {
+            this.sm = sm;
         }
 
         @Override
         public void completed(Void unused, Void unused2) {
-            context.switchTo(new SendingRequestState(channel));
+            enterGate.leaveWaitPeriod();
+            sm.switchToNextState();
         }
 
         @Override
         public void failed(Throwable t, Void unused) {
             logger.error("Error connecting", t);
-            context.switchTo(new WaitingToWakeupInverterReconnectingState(channel, enterTimestamp));
+            sm.switchToExceptionState();
         }
+    }
+
+    private static class EnterWaitPeriodGate {
+
+        private Instant enterTime;
+
+        public Instant enterWaitPeriod() {
+            if (enterTime == null) {
+                enterTime = Instant.now();
+            }
+            return enterTime;
+        };
+
+        public void leaveWaitPeriod() {
+            enterTime = null;
+        };
     }
 }

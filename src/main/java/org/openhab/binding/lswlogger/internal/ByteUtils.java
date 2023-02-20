@@ -29,24 +29,5 @@ public class ByteUtils {
          }
         return new String(hexChars, StandardCharsets.UTF_8);
     }
-
-    public int modbus(ByteBuffer data) {
-        int POLY = 0xA001;
-        int crc = 0xFFFF;
-    
-        while (data.hasRemaining()) {
-            byte b = data.get();
-            crc ^= b;
-            for (int i = 0; i < 8; i++) {
-                if ((crc & 0x0001) != 0) {
-                    crc = (crc >> 1) ^ POLY;
-                } else {
-                    crc = crc >> 1;
-                }
-            }
-        }
-        return crc;
-    }
-    
     
 }

@@ -60,6 +60,7 @@
 
   <build>
     <plugins>
+      
       <plugin>
         <groupId>org.commonjava.maven.plugins</groupId>
         <artifactId>directory-maven-plugin</artifactId>
@@ -81,6 +82,12 @@
           </execution>
         </executions>
       </plugin>
+
+      <plugin>
+				<groupId>biz.aQute.bnd</groupId>
+				<artifactId>bnd-maven-plugin</artifactId>
+			</plugin>
+
     </plugins>
   </build>
 

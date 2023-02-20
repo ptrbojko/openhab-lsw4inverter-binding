@@ -15,7 +15,7 @@ public class RequestFactoryTest {
     void testCreate() {
         // given
         // when
-        ByteBuffer message = RequestFactory.create(SN);
+        ByteBuffer message = RequestFactory.create(SN, 0x0000, 0x0027);
         // then
         String hex = ByteUtils.toHex(message.rewind());
         assertThat(hex).isEqualTo(
