@@ -14,53 +14,48 @@ package org.openhab.binding.lswlogger.internal.protocolv5.states;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 import java.util.concurrent.TimeUnit;
 
 import org.openhab.binding.lswlogger.internal.LoggerThingConfiguration;
 import org.openhab.binding.lswlogger.internal.connection.Context;
-import org.openhab.binding.lswlogger.internal.connection.LoggerConnectionState;
+import org.openhab.binding.lswlogger.internal.connection.StateMachineSwitchable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ReconnectingState implements LoggerConnectionState {
+public class ReconnectingState<C extends Context> implements ProtocolState<C> {
 
     private static final Logger logger = LoggerFactory.getLogger(ReconnectingState.class);
     public static final int WAIT_BEFORE_RECONNECT_SECONDS = 20;
-    private final int tryCount;
-    private AsynchronousSocketChannel channel;
 
-    public ReconnectingState(AsynchronousSocketChannel channel, int tryCount) {
-        this.tryCount = tryCount;
-        this.channel = channel;
-    }
+    private final RetriesCounter retriesCounter = new RetriesCounter();
 
     @Override
-    public void tick(Context context, LoggerThingConfiguration configuration) {
-        if (tryCount > configuration.getRetriesCount()) {
-            context.switchTo(new WaitingToWakeupInverterReconnectingState(channel));
+    public void tick(StateMachineSwitchable sm, C context, LoggerThingConfiguration configuration) {
+        if (retriesCounter.getRetries() > configuration.getRetriesCount()) {
+            sm.switchToAlternativeState();
             return;
         }
-        close();
-        reopenChannel();
+        close(context, configuration);
+        reopenChannel(context);
         context.schedule(WAIT_BEFORE_RECONNECT_SECONDS, TimeUnit.SECONDS,
-                () -> channel.connect(new InetSocketAddress(configuration.getHostname(), configuration.getPort()), null,
-                        new ReconnectingHandler(context)));
+                () -> context.channel().connect(
+                        new InetSocketAddress(configuration.getHostname(), configuration.getPort()), null,
+                        new ReconnectingHandler(sm)));
     }
 
-    private void reopenChannel() {
+    private void reopenChannel(Context context) {
         try {
-            channel = AsynchronousSocketChannel.open();
+            context.openChannel();
         } catch (IOException e) {
             logger.warn("Problem reopening channel", e);
         }
     }
 
     @Override
-    public void close() {
+    public void close(C context, LoggerThingConfiguration configuration) {
         try {
-            channel.close();
+            context.channel().close();
         } catch (IOException e) {
             logger.error("Cannot disconnect from channel", e);
         }
@@ -68,21 +63,40 @@ public class ReconnectingState implements LoggerConnectionState {
 
     private class ReconnectingHandler implements CompletionHandler<Void, Void> {
 
-        private final Context context;
+        private final StateMachineSwitchable sm;
 
-        public ReconnectingHandler(Context context) {
-            this.context = context;
+        public ReconnectingHandler(StateMachineSwitchable sm) {
+            this.sm = sm;
         }
 
         @Override
         public void completed(Void unused, Void unused2) {
-            context.switchTo(new SendingRequestState(channel));
+            retriesCounter.clearRetries();
+            sm.switchToNextState();
         }
 
         @Override
         public void failed(Throwable t, Void unused) {
             logger.error("Error connecting", t);
-            context.switchTo(new ReconnectingState(channel, tryCount + 1));
+            retriesCounter.increaseRetries();
+            sm.switchToExceptionState();
+        }
+    }
+
+    private static class RetriesCounter {
+
+        private int counter = 0;
+
+        int getRetries() {
+            return counter;
+        };
+
+        void increaseRetries() {
+            counter++;
+        }
+
+        void clearRetries() {
+            counter = 0;
         }
     }
 }

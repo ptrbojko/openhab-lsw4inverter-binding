@@ -13,35 +13,28 @@
 package org.openhab.binding.lswlogger.internal.protocolv5.states;
 
 import java.io.IOException;
-import java.nio.channels.AsynchronousSocketChannel;
 import java.util.concurrent.TimeUnit;
 
 import org.openhab.binding.lswlogger.internal.LoggerThingConfiguration;
 import org.openhab.binding.lswlogger.internal.connection.Context;
-import org.openhab.binding.lswlogger.internal.connection.LoggerConnectionState;
+import org.openhab.binding.lswlogger.internal.connection.StateMachineSwitchable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class WaitingForNextSendRequestState implements LoggerConnectionState {
+public class WaitingForNextSendRequestState<C extends Context> implements ProtocolState<C> {
 
     private static final Logger logger = LoggerFactory.getLogger(WaitingForNextSendRequestState.class);
 
-    private final AsynchronousSocketChannel channel;
-
-    public WaitingForNextSendRequestState(AsynchronousSocketChannel channel) {
-        this.channel = channel;
-    }
-
     @Override
-    public void tick(Context context, LoggerThingConfiguration configuration) {
+    public void tick(StateMachineSwitchable sm, C context, LoggerThingConfiguration configuration) {
         context.schedule(configuration.getRefreshTime(), TimeUnit.SECONDS,
-                () -> context.switchTo(new SendingRequestState(channel)));
+                () -> sm.switchToNextState());
     }
 
     @Override
-    public void close() {
+    public void close(C context, LoggerThingConfiguration configuration) {
         try {
-            channel.close();
+            context.channel().close();
         } catch (IOException e) {
             logger.error("Cannot disconnect from channel", e);
         }

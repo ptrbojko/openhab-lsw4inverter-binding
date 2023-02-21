@@ -15,7 +15,7 @@ package org.openhab.binding.lswlogger.internal;
 public class LoggerThingConfiguration {
     private String hostname;
     private int port;
-    private int serialNumber;
+    private long serialNumber;
     private int refreshTime;
     private int retriesCount;
     private int maxOfflineTime;
@@ -36,11 +36,11 @@ public class LoggerThingConfiguration {
         this.port = port;
     }
 
-    public int getSerialNumber() {
+    public long getSerialNumber() {
         return serialNumber;
     }
 
-    public void setSerialNumber(int serialNumber) {
+    public void setSerialNumber(long serialNumber) {
         this.serialNumber = serialNumber;
     }
 

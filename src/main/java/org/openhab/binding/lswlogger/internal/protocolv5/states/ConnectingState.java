@@ -14,37 +14,35 @@ package org.openhab.binding.lswlogger.internal.protocolv5.states;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 
 import org.openhab.binding.lswlogger.internal.LoggerThingConfiguration;
 import org.openhab.binding.lswlogger.internal.connection.Context;
-import org.openhab.binding.lswlogger.internal.connection.LoggerConnectionState;
+import org.openhab.binding.lswlogger.internal.connection.StateMachineSwitchable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class InitialState implements LoggerConnectionState {
+public class ConnectingState<C extends Context>  implements ProtocolState<C> {
 
-    private static final Logger logger = LoggerFactory.getLogger(InitialState.class);
-    private AsynchronousSocketChannel channel;
+    private static final Logger logger = LoggerFactory.getLogger(ConnectingState.class);
 
     @Override
-    public void tick(Context context, LoggerThingConfiguration configuration) {
+    public void tick(StateMachineSwitchable sm, C context, LoggerThingConfiguration configuration) {
         try {
-            this.channel = AsynchronousSocketChannel.open();
+            context.openChannel();
         } catch (IOException e) {
             logger.error("Cannot open nio channel", e);
-            context.switchTo(new UnrecoverableErrorState(this));
+            sm.switchToErrorState();
             return;
         }
-        channel.connect(new InetSocketAddress(configuration.getHostname(), configuration.getPort()), null,
-                new ConnectingHandler(context));
+        context.channel().connect(new InetSocketAddress(configuration.getHostname(), configuration.getPort()), null,
+                new ConnectingHandler(sm));
     }
 
     @Override
-    public void close() {
+    public void close(C context, LoggerThingConfiguration configuration) {
         try {
-            channel.close();
+            context.channel().close();
         } catch (IOException e) {
             logger.error("Cannot disconnect from channel", e);
         }
@@ -52,21 +50,21 @@ public class InitialState implements LoggerConnectionState {
 
     private class ConnectingHandler implements CompletionHandler<Void, Void> {
 
-        private final Context context;
+        private final StateMachineSwitchable sm;
 
-        public ConnectingHandler(Context context) {
-            this.context = context;
+        public ConnectingHandler(StateMachineSwitchable sm) {
+            this.sm = sm;
         }
 
         @Override
         public void completed(Void unused, Void unused2) {
-            context.switchTo(new SendingRequestState(channel));
+            sm.switchToNextState();
         }
 
         @Override
         public void failed(Throwable t, Void unused) {
             logger.error("Error connecting", t);
-            context.switchTo(new ReconnectingState(channel, 0));
+            sm.switchToExceptionState();
         }
     }
 }

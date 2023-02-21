@@ -12,21 +12,28 @@
  */
 package org.openhab.binding.lswlogger.internal.connection;
 
-import java.nio.ByteBuffer;
+import java.io.IOException;
+import java.nio.channels.AsynchronousSocketChannel;
 import java.util.concurrent.TimeUnit;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.openhab.core.thing.ThingStatus;
+import org.openhab.core.types.State;
+
 public interface Context {
-    void switchTo(LoggerConnectionState state);
-
-    ByteBuffer response();
-
-    ByteBuffer request();
-
-    void handleResponse();
 
     void schedule(int i, TimeUnit seconds, Runnable runnable);
+
+    void openChannel() throws IOException;
+
+    AsynchronousSocketChannel channel();
 
     void notifyLoggerIsOffline();
 
     void notifyCannotRecover();
+
+    void updateState(@NonNull String uuid, @NonNull State state);
+
+    void updateStatus(@NonNull ThingStatus online);
+
 }

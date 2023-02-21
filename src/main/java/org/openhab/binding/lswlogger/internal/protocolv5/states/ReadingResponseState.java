@@ -14,36 +14,39 @@ package org.openhab.binding.lswlogger.internal.protocolv5.states;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 
 import org.openhab.binding.lswlogger.internal.LoggerThingConfiguration;
+import org.openhab.binding.lswlogger.internal.LswLoggerBindingConstants.Common;
 import org.openhab.binding.lswlogger.internal.connection.Context;
-import org.openhab.binding.lswlogger.internal.connection.LoggerConnectionState;
+import org.openhab.binding.lswlogger.internal.connection.StateMachineSwitchable;
+import org.openhab.binding.lswlogger.internal.protocolv5.ResponseDispatcher;
+import org.openhab.core.library.types.OnOffType;
+import org.openhab.core.thing.ThingStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ReadingResponseState implements LoggerConnectionState {
+public class ReadingResponseState<C extends Context> implements ProtocolState<C> {
 
     private static final Logger logger = LoggerFactory.getLogger(ReadingResponseState.class);
 
-    private final AsynchronousSocketChannel channel;
+    private final ResponseDispatcher responseDispatcher;
+    private final ByteBuffer response = ByteBuffer.allocate(1024);
 
-    public ReadingResponseState(AsynchronousSocketChannel channel) {
-        this.channel = channel;
+    public ReadingResponseState(ResponseDispatcher responseDispatcher) {
+        this.responseDispatcher = responseDispatcher;
     }
 
     @Override
-    public void tick(Context context, LoggerThingConfiguration configuration) {
-        ByteBuffer response = context.response();
+    public void tick(StateMachineSwitchable sm, C context, LoggerThingConfiguration configuration) {
         response.clear();
-        channel.read(response, null, new ReadingHandler(context));
+        context.channel().read(response, null, new ReadingHandler(sm, context, response));
     }
 
     @Override
-    public void close() {
+    public void close(C context, LoggerThingConfiguration configuration) {
         try {
-            channel.close();
+            context.channel().close();
         } catch (IOException e) {
             logger.error("Cannot disconnect from channel", e);
         }
@@ -51,21 +54,28 @@ public class ReadingResponseState implements LoggerConnectionState {
 
     private class ReadingHandler implements CompletionHandler<Integer, Void> {
 
-        private final Context context;
+        private final ByteBuffer response;
+        private StateMachineSwitchable sm;
+        private Context context;
 
-        public ReadingHandler(Context context) {
+        public ReadingHandler(StateMachineSwitchable sm, Context context, ByteBuffer response) {
+            this.sm = sm;
             this.context = context;
+            this.response = response;
         }
 
         @Override
         public void completed(Integer integer, Void unused) {
-            context.handleResponse();
-            context.switchTo(new WaitingForNextSendRequestState(channel));
+            context.updateState(Common.onlineChannel, OnOffType.ON);
+            context.updateStatus(ThingStatus.ONLINE);
+            response.flip();
+            responseDispatcher.accept(response);
+            sm.switchToNextState();
         }
 
         @Override
         public void failed(Throwable throwable, Void unused) {
-            context.switchTo(new ReconnectingState(channel, 0));
+            sm.switchToExceptionState();
         }
     }
 }
