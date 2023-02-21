@@ -36,7 +36,7 @@ import org.osgi.service.component.annotations.Component;
 @Component(configurationPid = "binding.lswlogger", service = ThingHandlerFactory.class)
 public class LswLoggerHandlerFactory extends BaseThingHandlerFactory {
 
-    private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Set.of(LSWLoggerV5.LOGGER_LSW);
+    private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Set.of(LSWLoggerV5.THING_TYPE_ID);
 
     @Override
     public boolean supportsThingType(ThingTypeUID thingTypeUID) {
@@ -47,7 +47,7 @@ public class LswLoggerHandlerFactory extends BaseThingHandlerFactory {
     protected @Nullable ThingHandler createHandler(Thing thing) {
         ThingTypeUID thingTypeUID = thing.getThingTypeUID();
 
-        if (LSWLoggerV5.LOGGER_LSW.equals(thingTypeUID)) {
+        if (LSWLoggerV5.THING_TYPE_ID.equals(thingTypeUID)) {
             return new LswLoggerHandler(thing);
         }
 

@@ -47,23 +47,24 @@ public class LswLoggerHandler extends AbstractLoggerHandler {
     private static final int FROM_REGISTER = 0x0000;
     private static final int TO_REGISTER = 0x0027;
 
-    private StateMachine<LswLoggerHandlerContext> stateMachine;
-
     public LswLoggerHandler(Thing thing) {
         super(thing);
     }
 
     @Override
     protected StateMachine<?> createStateMachine() {
-        return createStateMachine(new LswLoggerHandlerContext(),
+        return createStateMachine(
+                new LswLoggerHandlerContext(),
                 this.getConfigAs(LoggerThingConfiguration.class));
     }
 
     private StateMachine<LswLoggerHandlerContext> createStateMachine(
-            @NonNull LswLoggerHandlerContext lswLoggerHandlerContext, @NonNull LoggerThingConfiguration configAs) {
+            @NonNull LswLoggerHandlerContext lswLoggerHandlerContext,
+            @NonNull LoggerThingConfiguration configAs) {
         ProtocolState<LswLoggerHandlerContext> initial = new ConnectingState<>();
         UnrecoverableErrorState<LswLoggerHandlerContext> unrecoverableErrorState = new UnrecoverableErrorState<>();
-        SendingRequestState<LswLoggerHandlerContext> sendingRequestState = new SendingRequestState<>(FROM_REGISTER,
+        SendingRequestState<LswLoggerHandlerContext> sendingRequestState = new SendingRequestState<>(
+                FROM_REGISTER,
                 TO_REGISTER);
         ReadingResponseState<LswLoggerHandlerContext> readingResponseState = new ReadingResponseState<>(
                 createResponseDispatcher());
@@ -76,19 +77,24 @@ public class LswLoggerHandler extends AbstractLoggerHandler {
                 .addConfiguration(configAs)
                 .setInitial(initial)
                 .addState(initial,
-                        routes -> routes.addNextRoute(sendingRequestState).addErrorRoute(unrecoverableErrorState))
+                        routes -> routes.addNextRoute(sendingRequestState)
+                                .addErrorRoute(unrecoverableErrorState))
                 .addState(sendingRequestState,
-                        routes -> routes.addNextRoute(readingResponseState).addExceptionRoute(reconnectingState))
+                        routes -> routes.addNextRoute(readingResponseState)
+                                .addExceptionRoute(reconnectingState))
                 .addState(readingResponseState,
-                        routes -> routes.addNextRoute(cycleWaitingState).addExceptionRoute(reconnectingState))
+                        routes -> routes.addNextRoute(cycleWaitingState)
+                                .addExceptionRoute(reconnectingState))
                 .addState(reconnectingState,
                         routes -> routes.addNextRoute(sendingRequestState)
-                                .addAlternativeRoute(waitingToWakeupInverterReconnectingState)
+                                .addAlternativeRoute(
+                                        waitingToWakeupInverterReconnectingState)
                                 .addExceptionRoute(reconnectingState))
                 .addState(cycleWaitingState, routes -> routes.addNextRoute(sendingRequestState))
                 .addState(waitingToWakeupInverterReconnectingState,
                         route -> route.addNextRoute(sendingRequestState)
-                                .addExceptionRoute(waitingToWakeupInverterReconnectingState)
+                                .addExceptionRoute(
+                                        waitingToWakeupInverterReconnectingState)
                                 .addErrorRoute(unrecoverableErrorState));
         return builder.build();
     }
@@ -109,17 +115,28 @@ public class LswLoggerHandler extends AbstractLoggerHandler {
         @Override
         public void notifyLoggerIsOffline() {
             super.notifyLoggerIsOffline();
-            updateState(LswLoggerBindingConstants.LSWLoggerV5.gridAVoltageChannel, InitialDataValues.ZERO_VOLTS);
-            updateState(LswLoggerBindingConstants.LSWLoggerV5.gridACurrentChannel, InitialDataValues.ZERO_AMPERES);
-            updateState(LswLoggerBindingConstants.LSWLoggerV5.gridAPowerChannel, InitialDataValues.ZERO_WATTS);
-            updateState(LswLoggerBindingConstants.LSWLoggerV5.gridBVoltageChannel, InitialDataValues.ZERO_VOLTS);
-            updateState(LswLoggerBindingConstants.LSWLoggerV5.gridBCurrentChannel, InitialDataValues.ZERO_AMPERES);
-            updateState(LswLoggerBindingConstants.LSWLoggerV5.gridBPowerChannel, InitialDataValues.ZERO_WATTS);
-            updateState(LswLoggerBindingConstants.LSWLoggerV5.outputActivePowerChannel, InitialDataValues.ZERO_WATTS);
-            updateState(LswLoggerBindingConstants.LSWLoggerV5.outputReactivePowerChannel, InitialDataValues.ZERO_WATTS);
-            updateState(LswLoggerBindingConstants.LSWLoggerV5.Phase1CurrentChannel, InitialDataValues.ZERO_AMPERES);
-            updateState(LswLoggerBindingConstants.LSWLoggerV5.Phase2CurrentChannel, InitialDataValues.ZERO_AMPERES);
-            updateState(LswLoggerBindingConstants.LSWLoggerV5.Phase3CurrentChannel, InitialDataValues.ZERO_AMPERES);
+            updateState(LswLoggerBindingConstants.LSWLoggerV5.gridAVoltageChannel,
+                    InitialDataValues.ZERO_VOLTS);
+            updateState(LswLoggerBindingConstants.LSWLoggerV5.gridACurrentChannel,
+                    InitialDataValues.ZERO_AMPERES);
+            updateState(LswLoggerBindingConstants.LSWLoggerV5.gridAPowerChannel,
+                    InitialDataValues.ZERO_WATTS);
+            updateState(LswLoggerBindingConstants.LSWLoggerV5.gridBVoltageChannel,
+                    InitialDataValues.ZERO_VOLTS);
+            updateState(LswLoggerBindingConstants.LSWLoggerV5.gridBCurrentChannel,
+                    InitialDataValues.ZERO_AMPERES);
+            updateState(LswLoggerBindingConstants.LSWLoggerV5.gridBPowerChannel,
+                    InitialDataValues.ZERO_WATTS);
+            updateState(LswLoggerBindingConstants.LSWLoggerV5.outputActivePowerChannel,
+                    InitialDataValues.ZERO_WATTS);
+            updateState(LswLoggerBindingConstants.LSWLoggerV5.outputReactivePowerChannel,
+                    InitialDataValues.ZERO_WATTS);
+            updateState(LswLoggerBindingConstants.LSWLoggerV5.Phase1CurrentChannel,
+                    InitialDataValues.ZERO_AMPERES);
+            updateState(LswLoggerBindingConstants.LSWLoggerV5.Phase2CurrentChannel,
+                    InitialDataValues.ZERO_AMPERES);
+            updateState(LswLoggerBindingConstants.LSWLoggerV5.Phase3CurrentChannel,
+                    InitialDataValues.ZERO_AMPERES);
         }
     }
 }

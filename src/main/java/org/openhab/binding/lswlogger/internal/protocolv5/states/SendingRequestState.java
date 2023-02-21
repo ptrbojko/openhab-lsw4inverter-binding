@@ -33,8 +33,8 @@ public class SendingRequestState<C extends Context> implements ProtocolState<C> 
     private final int toRegister;
 
     public SendingRequestState(int fromRegister, int toRegister) {
-        this.fromRegister = fromRegister; // 0x0484;// 0x0000;
-        this.toRegister = toRegister; // 0x04AF;// 0x0027;
+        this.fromRegister = fromRegister;
+        this.toRegister = toRegister;
     }
 
     @Override

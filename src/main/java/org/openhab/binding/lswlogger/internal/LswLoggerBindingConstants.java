@@ -47,7 +47,7 @@ public interface LswLoggerBindingConstants {
     }
 
     interface LSWLoggerV5 {
-        ThingTypeUID LOGGER_LSW = new ThingTypeUID(BINDING_ID, "LSWLoggerV5");
+        ThingTypeUID THING_TYPE_ID = new ThingTypeUID(BINDING_ID, "LSWLoggerV5");
         String[] OPERATING_STATES = new String[] { "Unknown", "Check", "Normal", "Fault", "Permanent" };
         String operatingStateChannel = "operatingState";
         String faultChannel = "fault";
@@ -72,5 +72,9 @@ public interface LswLoggerBindingConstants {
         String todayGenerationTimeChannel = "todayGenerationTime";
         String inverterModuleTemperatureChannel = "inverterModuleTemperature";
         String inverterInnerTemperatureChannel = "inverterInnerTemperature";
+    }
+
+    interface SN23xV5 {
+        ThingTypeUID THING_TYPE_ID = new ThingTypeUID(BINDING_ID, "SN23xLoggerV5");
     }
 }

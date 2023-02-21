@@ -112,6 +112,48 @@
 		</config-description>
 	</thing-type>
 
+	<thing-type id="SN23xLoggerV5">
+		<label>Loggers with SN 23x</label>
+		<description>LSW Logger, supporting loggers based on iGEN V5 protocol (S/N 23xxxxxxxx format)</description>
+		
+		<channels>
+			<channel id="online" typeId="online-channel"/>
+		</channels>
+
+		<config-description>
+			<parameter name="hostname" type="text" required="true">
+				<context>network-address</context>
+				<label>Logger Hostname/IP</label>
+				<description>Hostname or IP address of the device.</description>
+			</parameter>
+			<parameter name="port" type="integer" min="1" required="true">
+				<label>Port</label>
+				<description>TCP port of the device.</description>
+				<default>8899</default>
+			</parameter>
+			<parameter name="serialNumber" type="integer" required="true">
+				<context></context>
+				<label>Logger serial number</label>
+				<description>Logger serial number, those with format 17xxxx are confirmed to be supported.</description>
+			</parameter>
+			<parameter name="refreshTime" type="integer" required="true">
+				<label>Refresh time</label>
+				<description>Interval the device is polled in sec.</description>
+				<default>120</default>
+			</parameter>
+			<parameter name="retriesCount" type="integer">
+				<label>Number of retries</label>
+				<description>Number of connecting retries before giving up and assuming that logger is offline</description>
+				<default>10</default>
+			</parameter>
+			<parameter name="maxOfflineTime" type="integer">
+				<label>maxOfflineTime</label>
+				<description>Maximum time (in minutes) in which logger is assumed to be offline</description>
+				<default>2160</default>
+			</parameter>
+		</config-description>
+	</thing-type>
+
 	<channel-type id="online-channel">
 		<item-type>Switch</item-type>
 		<label>Online</label>
