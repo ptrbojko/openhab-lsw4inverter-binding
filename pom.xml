@@ -6,6 +6,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
+    <?m2e execute onConfiguration,onIncremental?>
     <groupId>org.openhab.addons</groupId>
     <artifactId>org.openhab.addons.reactor</artifactId>
     <version>3.3.0</version>
