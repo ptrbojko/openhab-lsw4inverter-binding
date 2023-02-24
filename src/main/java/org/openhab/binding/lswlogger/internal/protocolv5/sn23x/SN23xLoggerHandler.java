@@ -85,6 +85,7 @@ public class SN23xLoggerHandler extends AbstractLoggerHandler {
                 .setInitial(initial)
                 .addState(initial,
                         routes -> routes.addNextRoute(sendingRequestForGroup1State)
+                                .addExceptionRoute(reconnectingState)
                                 .addErrorRoute(unrecoverableErrorState))
                 .addState(sendingRequestForGroup1State,
                         routes -> routes.addNextRoute(readingResponse1State)

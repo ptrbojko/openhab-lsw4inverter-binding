@@ -64,6 +64,7 @@ public class ConnectingState<C extends Context>  implements ProtocolState<C> {
         @Override
         public void failed(Throwable t, Void unused) {
             logger.error("Error connecting", t);
+            logger.debug("Switching to exception state");
             sm.switchToExceptionState();
         }
     }

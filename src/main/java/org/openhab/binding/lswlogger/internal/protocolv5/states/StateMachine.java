@@ -11,11 +11,11 @@ import org.slf4j.LoggerFactory;
 public class StateMachine<C extends Context> implements StateMachineSwitchable {
 
     private static final Logger logger = LoggerFactory.getLogger(StateMachine.class);
-    
+
     private final C context;
     private final LoggerThingConfiguration configuration;
     private final Map<ProtocolState<C>, ProtocolStateMeta<C>> states;
-    private ProtocolStateMeta<C> current;   
+    private ProtocolStateMeta<C> current;
     private boolean closed = false;
     private final ProtocolState<C> initialState;
 
@@ -44,7 +44,7 @@ public class StateMachine<C extends Context> implements StateMachineSwitchable {
 
     @Override
     public void switchToErrorState() {
-        switchTo(current.getErrorState());        
+        switchTo(current.getErrorState());
     }
 
     public void close() {
@@ -63,9 +63,9 @@ public class StateMachine<C extends Context> implements StateMachineSwitchable {
             logger.warn("Context is closed, not switching to {}", state);
             return;
         }
-        ProtocolStateMeta<C> newMeta = states.get(state);
-        logger.debug("Ticking {}", newMeta.getState());
-        newMeta.getState().tick(this, context, configuration);
+        current = states.get(state);
+        logger.debug("Ticking {}", current.getState());
+        current.getState().tick(this, context, configuration);
     }
-    
+
 }

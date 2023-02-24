@@ -36,6 +36,7 @@ public class ReconnectingState<C extends Context> implements ProtocolState<C> {
             sm.switchToAlternativeState();
             return;
         }
+        logger.debug("Retrying to connect. Tries count {}", retriesCounter.getRetries());
         close(context, configuration);
         reopenChannel(context);
         context.schedule(WAIT_BEFORE_RECONNECT_SECONDS, TimeUnit.SECONDS,
@@ -85,7 +86,7 @@ public class ReconnectingState<C extends Context> implements ProtocolState<C> {
 
     private static class RetriesCounter {
 
-        private int counter = 0;
+        private int counter = 1;
 
         int getRetries() {
             return counter;

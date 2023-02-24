@@ -78,6 +78,7 @@ public class LswLoggerHandler extends AbstractLoggerHandler {
                 .setInitial(initial)
                 .addState(initial,
                         routes -> routes.addNextRoute(sendingRequestState)
+                                .addExceptionRoute(reconnectingState)
                                 .addErrorRoute(unrecoverableErrorState))
                 .addState(sendingRequestState,
                         routes -> routes.addNextRoute(readingResponseState)
