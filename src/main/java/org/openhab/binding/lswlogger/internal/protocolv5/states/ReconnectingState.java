@@ -33,6 +33,7 @@ public class ReconnectingState<C extends Context> implements ProtocolState<C> {
     @Override
     public void tick(StateMachineSwitchable sm, C context, LoggerThingConfiguration configuration) {
         if (retriesCounter.getRetries() > configuration.getRetriesCount()) {
+            retriesCounter.clearRetries();
             sm.switchToAlternativeState();
             return;
         }
