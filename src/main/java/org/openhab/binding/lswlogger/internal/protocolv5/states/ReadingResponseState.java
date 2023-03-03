@@ -15,6 +15,10 @@ package org.openhab.binding.lswlogger.internal.protocolv5.states;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.CompletionHandler;
+import java.nio.channels.InterruptedByTimeoutException;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.concurrent.TimeUnit;
 
 import org.openhab.binding.lswlogger.internal.LoggerThingConfiguration;
 import org.openhab.binding.lswlogger.internal.LswLoggerBindingConstants.Common;
@@ -40,7 +44,8 @@ public class ReadingResponseState<C extends Context> implements ProtocolState<C>
     @Override
     public void tick(StateMachineSwitchable sm, C context, LoggerThingConfiguration configuration) {
         response.clear();
-        context.channel().read(response, null, new ReadingHandler(sm, context, response));
+        context.channel().read(response, configuration.getRefreshTime(), TimeUnit.SECONDS, null,
+                new ReadingHandler(sm, context, response, configuration.getRefreshTime()));
     }
 
     @Override
@@ -55,10 +60,14 @@ public class ReadingResponseState<C extends Context> implements ProtocolState<C>
     private class ReadingHandler implements CompletionHandler<Integer, Void> {
 
         private final ByteBuffer response;
-        private StateMachineSwitchable sm;
-        private Context context;
+        private final Instant enterTime;
+        private final StateMachineSwitchable sm;
+        private final Context context;
+        private final long period;
 
-        public ReadingHandler(StateMachineSwitchable sm, Context context, ByteBuffer response) {
+        public ReadingHandler(StateMachineSwitchable sm, Context context, ByteBuffer response, long period) {
+            this.period = period;
+            this.enterTime = Instant.now();
             this.sm = sm;
             this.context = context;
             this.response = response;
@@ -70,12 +79,25 @@ public class ReadingResponseState<C extends Context> implements ProtocolState<C>
             context.updateStatus(ThingStatus.ONLINE);
             response.flip();
             responseDispatcher.accept(response);
-            sm.switchToNextState();
+            Instant now = Instant.now();
+            if (enterTime.plusSeconds(period).isBefore(Instant.now())) {
+                sm.switchToNextState();
+            } else {
+                response.clear();
+                long pastPeriod = Duration.between(enterTime, now).toSeconds();
+                context.channel().read(response, Math.max(period - pastPeriod, 0), TimeUnit.SECONDS, null, this);
+            }
         }
 
         @Override
         public void failed(Throwable throwable, Void unused) {
-            sm.switchToExceptionState();
+            if (throwable instanceof InterruptedByTimeoutException) {
+                logger.debug("Got interrupted by timeout exception. This is ok - time to next state.");
+                sm.switchToNextState();
+            } else {
+                logger.error("Problem reading response data", throwable);
+                sm.switchToExceptionState();
+            }
         }
     }
 }

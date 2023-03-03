@@ -25,7 +25,6 @@ import org.openhab.binding.lswlogger.internal.protocolv5.states.SendingRequestSt
 import org.openhab.binding.lswlogger.internal.protocolv5.states.StateBuilder;
 import org.openhab.binding.lswlogger.internal.protocolv5.states.StateMachine;
 import org.openhab.binding.lswlogger.internal.protocolv5.states.UnrecoverableErrorState;
-import org.openhab.binding.lswlogger.internal.protocolv5.states.WaitingForNextSendRequestState;
 import org.openhab.binding.lswlogger.internal.protocolv5.states.WaitingToWakeupInverterReconnectingState;
 import org.openhab.core.thing.Thing;
 import org.slf4j.Logger;
@@ -74,8 +73,6 @@ public class SN23xLoggerHandler extends AbstractLoggerHandler {
                 createResponseDispatcher());
         ReadingResponseState<SN23xLoggerHandlerContext> readingResponse2State = new ReadingResponseState<>(
                 createResponseDispatcher());
-        WaitingForNextSendRequestState<SN23xLoggerHandlerContext> cycleWaiting1State = new WaitingForNextSendRequestState<>();
-        WaitingForNextSendRequestState<SN23xLoggerHandlerContext> cycleWaiting2State = new WaitingForNextSendRequestState<>();
         ReconnectingState<SN23xLoggerHandlerContext> reconnectingState = new ReconnectingState<>();
         WaitingToWakeupInverterReconnectingState<SN23xLoggerHandlerContext> waitingToWakeupInverterReconnectingState = new WaitingToWakeupInverterReconnectingState<>();
         StateBuilder<SN23xLoggerHandlerContext> builder = new StateBuilder<>();
@@ -91,21 +88,19 @@ public class SN23xLoggerHandler extends AbstractLoggerHandler {
                         routes -> routes.addNextRoute(readingResponse1State)
                                 .addExceptionRoute(reconnectingState))
                 .addState(readingResponse1State,
-                        routes -> routes.addNextRoute(cycleWaiting1State)
+                        routes -> routes.addNextRoute(sendingRequestForGroup1State)
                                 .addExceptionRoute(reconnectingState))
                 .addState(reconnectingState,
                         routes -> routes.addNextRoute(sendingRequestForGroup1State)
                                 .addAlternativeRoute(
                                         waitingToWakeupInverterReconnectingState)
                                 .addExceptionRoute(reconnectingState))
-                .addState(cycleWaiting1State, routes -> routes.addNextRoute(sendingRequestForGroup2State))
                 .addState(sendingRequestForGroup2State,
                         routes -> routes.addNextRoute(readingResponse2State)
                                 .addExceptionRoute(reconnectingState))
                 .addState(readingResponse2State,
-                        routes -> routes.addNextRoute(cycleWaiting2State)
+                        routes -> routes.addNextRoute(sendingRequestForGroup2State)
                                 .addExceptionRoute(reconnectingState))
-                .addState(cycleWaiting2State, routes -> routes.addNextRoute(sendingRequestForGroup1State))
                 .addState(waitingToWakeupInverterReconnectingState,
                         route -> route.addNextRoute(sendingRequestForGroup1State)
                                 .addExceptionRoute(
