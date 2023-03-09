@@ -14,8 +14,6 @@ package org.openhab.binding.lswlogger.internal.protocolv5.states;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.CompletionHandler;
-import java.util.concurrent.TimeUnit;
 
 import org.openhab.binding.lswlogger.internal.LoggerThingConfiguration;
 import org.openhab.binding.lswlogger.internal.connection.Context;
@@ -43,7 +41,10 @@ public class SendingRequestState<C extends Context> implements ProtocolState<C> 
                 .create(configuration.getSerialNumber(), fromRegister, toRegister)
                 .flip()
                 .clear();
-        context.channel().write(request, SENDING_TIMEOUT, TimeUnit.SECONDS, request, new SendingHandler(sm, context));
+        context.channel().write(request, sm::switchToNextState, t -> {
+            logger.error("Failed to write to channel", t);
+            sm.switchToExceptionState();
+        });
     }
 
     @Override
@@ -52,37 +53,6 @@ public class SendingRequestState<C extends Context> implements ProtocolState<C> 
             context.channel().close();
         } catch (IOException e) {
             logger.error("Cannot disconnect from channel", e);
-        }
-    }
-
-    private class SendingHandler implements CompletionHandler<Integer, ByteBuffer> {
-
-        private final Context context;
-        private final StateMachineSwitchable sm;
-
-        public SendingHandler(StateMachineSwitchable sm, Context context) {
-            this.sm = sm;
-            this.context = context;
-        }
-
-        @Override
-        public void completed(Integer bytesWritten, ByteBuffer request) {
-            if (bytesWritten < 0) {
-                logger.error("Write problem, remain bytes count to be sent {}", request.remaining());
-                sm.switchToExceptionState();
-                return;
-            }
-            if (request.hasRemaining()) {
-                context.channel().write(request, null, this);
-                return;
-            }
-            sm.switchToNextState();
-        }
-
-        @Override
-        public void failed(Throwable t, ByteBuffer unused) {
-            logger.error("Failed to write to channel", t);
-            sm.switchToExceptionState();
         }
     }
 }

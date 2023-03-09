@@ -1,11 +1,10 @@
 package org.openhab.binding.lswlogger.internal.protocolv5;
 
-import java.io.IOException;
-import java.nio.channels.AsynchronousSocketChannel;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.openhab.binding.lswlogger.internal.LswLoggerBindingConstants;
+import org.openhab.binding.lswlogger.internal.connection.Channel;
 import org.openhab.binding.lswlogger.internal.connection.Context;
 import org.openhab.binding.lswlogger.internal.protocolv5.states.StateMachine;
 import org.openhab.core.library.types.OnOffType;
@@ -66,10 +65,11 @@ public abstract class AbstractLoggerHandler extends BaseThingHandler {
 
         private final AbstractLoggerHandler handler;
 
-        private AsynchronousSocketChannel channel;
+        private Channel channel;
 
         public AbstractContext(AbstractLoggerHandler handler) {
             this.handler = handler;
+            this.channel = new Channel();
         }
 
         @Override
@@ -78,12 +78,7 @@ public abstract class AbstractLoggerHandler extends BaseThingHandler {
         }
 
         @Override
-        public final void openChannel() throws IOException {
-            channel = AsynchronousSocketChannel.open();
-        }
-
-        @Override
-        public final AsynchronousSocketChannel channel() {
+        public final Channel channel() {
             return channel;
         }
 

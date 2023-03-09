@@ -14,7 +14,6 @@ package org.openhab.binding.lswlogger.internal.protocolv5.states;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.nio.channels.CompletionHandler;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.TimeUnit;
@@ -29,7 +28,6 @@ public class WaitingToWakeupInverterReconnectingState<C extends Context> impleme
 
     private static final Logger logger = LoggerFactory.getLogger(WaitingToWakeupInverterReconnectingState.class);
 
-
     private final EnterWaitPeriodGate enterGate = new EnterWaitPeriodGate();
 
     @Override
@@ -40,24 +38,25 @@ public class WaitingToWakeupInverterReconnectingState<C extends Context> impleme
             return;
         }
         context.notifyLoggerIsOffline();
-        reopenChannel(context, configuration);
-        context.schedule(calculateWaitPeriod(configuration), TimeUnit.MINUTES, () -> {
-            context.channel().connect(new InetSocketAddress(configuration.getHostname(), configuration.getPort()), null,
-                    new ReconnectingHandler(sm));
-        });
+        close(context, configuration);
+        context.schedule(calculateWaitPeriod(configuration), TimeUnit.MINUTES, () -> context.channel().reopen(
+                new InetSocketAddress(configuration.getHostname(), configuration.getPort()),
+                () -> {
+                    enterGate.leaveWaitPeriod();
+                    sm.switchToNextState();
+                },
+                t -> {
+                    logger.error("Error opening", t);
+                    sm.switchToExceptionState();
+                },
+                t -> {
+                    logger.error("Error connecting", t);
+                    sm.switchToExceptionState();
+                }));
     }
 
     private int calculateWaitPeriod(LoggerThingConfiguration configuration) {
         return (int) Math.sqrt(configuration.getMaxOfflineTime());
-    }
-
-    private void reopenChannel(C context, LoggerThingConfiguration configuration) {
-        close(context, configuration);
-        try {
-            context.openChannel();
-        } catch (IOException e) {
-            logger.warn("Problem reopening channel", e);
-        }
     }
 
     @Override
@@ -66,27 +65,6 @@ public class WaitingToWakeupInverterReconnectingState<C extends Context> impleme
             context.channel().close();
         } catch (IOException e) {
             logger.error("Cannot disconnect from channel", e);
-        }
-    }
-
-    private class ReconnectingHandler implements CompletionHandler<Void, Void> {
-
-        private final StateMachineSwitchable sm;
-
-        public ReconnectingHandler(StateMachineSwitchable sm) {
-            this.sm = sm;
-        }
-
-        @Override
-        public void completed(Void unused, Void unused2) {
-            enterGate.leaveWaitPeriod();
-            sm.switchToNextState();
-        }
-
-        @Override
-        public void failed(Throwable t, Void unused) {
-            logger.error("Error connecting", t);
-            sm.switchToExceptionState();
         }
     }
 

@@ -14,9 +14,7 @@ package org.openhab.binding.lswlogger.internal.protocolv5.states;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.CompletionHandler;
 import java.nio.channels.InterruptedByTimeoutException;
-import java.time.Duration;
 import java.time.Instant;
 import java.util.concurrent.TimeUnit;
 
@@ -33,9 +31,9 @@ import org.slf4j.LoggerFactory;
 public class ReadingResponseState<C extends Context> implements ProtocolState<C> {
 
     private static final Logger logger = LoggerFactory.getLogger(ReadingResponseState.class);
+    private static final int WAIT_FOR_NEXT_READ = 15;
 
     private final ResponseDispatcher responseDispatcher;
-    private final ByteBuffer response = ByteBuffer.allocate(1024);
 
     public ReadingResponseState(ResponseDispatcher responseDispatcher) {
         this.responseDispatcher = responseDispatcher;
@@ -43,9 +41,7 @@ public class ReadingResponseState<C extends Context> implements ProtocolState<C>
 
     @Override
     public void tick(StateMachineSwitchable sm, C context, LoggerThingConfiguration configuration) {
-        response.clear();
-        context.channel().read(response, configuration.getRefreshTime(), TimeUnit.SECONDS, null,
-                new ReadingHandler(sm, context, response, configuration.getRefreshTime()));
+        new ReadingHandler(sm, context, configuration.getRefreshTime()).run();
     }
 
     @Override
@@ -57,40 +53,36 @@ public class ReadingResponseState<C extends Context> implements ProtocolState<C>
         }
     }
 
-    private class ReadingHandler implements CompletionHandler<Integer, Void> {
+    private class ReadingHandler {
 
-        private final ByteBuffer response;
         private final Instant enterTime;
         private final StateMachineSwitchable sm;
         private final Context context;
         private final long period;
 
-        public ReadingHandler(StateMachineSwitchable sm, Context context, ByteBuffer response, long period) {
+        public ReadingHandler(StateMachineSwitchable sm, Context context, long period) {
             this.period = period;
             this.enterTime = Instant.now();
             this.sm = sm;
             this.context = context;
-            this.response = response;
         }
 
-        @Override
-        public void completed(Integer integer, Void unused) {
-            context.updateState(Common.onlineChannel, OnOffType.ON);
-            context.updateStatus(ThingStatus.ONLINE);
-            response.flip();
-            responseDispatcher.accept(response);
-            Instant now = Instant.now();
+        public void run() {
+            context.channel().read(this::onRead, this::failed);
             if (enterTime.plusSeconds(period).isBefore(Instant.now())) {
                 sm.switchToNextState();
             } else {
-                response.clear();
-                long pastPeriod = Duration.between(enterTime, now).toSeconds();
-                context.channel().read(response, Math.max(period - pastPeriod, 0), TimeUnit.SECONDS, null, this);
+                context.schedule(WAIT_FOR_NEXT_READ, TimeUnit.SECONDS, this::run);
             }
         }
 
-        @Override
-        public void failed(Throwable throwable, Void unused) {
+        public void onRead(ByteBuffer message) {
+            context.updateState(Common.onlineChannel, OnOffType.ON);
+            context.updateStatus(ThingStatus.ONLINE);
+            responseDispatcher.accept(message);
+        }
+
+        public void failed(Throwable throwable) {
             if (throwable instanceof InterruptedByTimeoutException) {
                 logger.debug("Got interrupted by timeout exception. This is ok - time to next state.");
                 sm.switchToNextState();

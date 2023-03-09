@@ -14,7 +14,6 @@ package org.openhab.binding.lswlogger.internal.protocolv5.states;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.nio.channels.CompletionHandler;
 import java.util.concurrent.TimeUnit;
 
 import org.openhab.binding.lswlogger.internal.LoggerThingConfiguration;
@@ -39,19 +38,23 @@ public class ReconnectingState<C extends Context> implements ProtocolState<C> {
         }
         logger.debug("Retrying to connect. Tries count {}", retriesCounter.getRetries());
         close(context, configuration);
-        reopenChannel(context);
         context.schedule(WAIT_BEFORE_RECONNECT_SECONDS, TimeUnit.SECONDS,
-                () -> context.channel().connect(
-                        new InetSocketAddress(configuration.getHostname(), configuration.getPort()), null,
-                        new ReconnectingHandler(sm)));
-    }
-
-    private void reopenChannel(Context context) {
-        try {
-            context.openChannel();
-        } catch (IOException e) {
-            logger.warn("Problem reopening channel", e);
-        }
+                () -> context.channel().reopen(
+                        new InetSocketAddress(configuration.getHostname(), configuration.getPort()),
+                        () -> {
+                            retriesCounter.clearRetries();
+                            sm.switchToNextState();
+                        },
+                        t -> {
+                            logger.error("Error opening", t);
+                            retriesCounter.increaseRetries();
+                            sm.switchToExceptionState();
+                        },
+                        t -> {
+                            logger.error("Error connecting", t);
+                            retriesCounter.increaseRetries();
+                            sm.switchToExceptionState();
+                        }));
     }
 
     @Override
@@ -60,28 +63,6 @@ public class ReconnectingState<C extends Context> implements ProtocolState<C> {
             context.channel().close();
         } catch (IOException e) {
             logger.error("Cannot disconnect from channel", e);
-        }
-    }
-
-    private class ReconnectingHandler implements CompletionHandler<Void, Void> {
-
-        private final StateMachineSwitchable sm;
-
-        public ReconnectingHandler(StateMachineSwitchable sm) {
-            this.sm = sm;
-        }
-
-        @Override
-        public void completed(Void unused, Void unused2) {
-            retriesCounter.clearRetries();
-            sm.switchToNextState();
-        }
-
-        @Override
-        public void failed(Throwable t, Void unused) {
-            logger.error("Error connecting", t);
-            retriesCounter.increaseRetries();
-            sm.switchToExceptionState();
         }
     }
 

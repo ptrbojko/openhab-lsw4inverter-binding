@@ -13,7 +13,6 @@
 package org.openhab.binding.lswlogger.internal.connection;
 
 import java.io.IOException;
-import java.nio.channels.AsynchronousSocketChannel;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.jdt.annotation.NonNull;
@@ -24,9 +23,7 @@ public interface Context {
 
     void schedule(int i, TimeUnit seconds, Runnable runnable);
 
-    void openChannel() throws IOException;
-
-    AsynchronousSocketChannel channel();
+    Channel channel();
 
     void notifyLoggerIsOffline();
 
