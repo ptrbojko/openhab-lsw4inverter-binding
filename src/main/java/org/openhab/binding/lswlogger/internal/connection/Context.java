@@ -12,16 +12,11 @@
  */
 package org.openhab.binding.lswlogger.internal.connection;
 
-import java.io.IOException;
-import java.util.concurrent.TimeUnit;
-
 import org.eclipse.jdt.annotation.NonNull;
 import org.openhab.core.thing.ThingStatus;
 import org.openhab.core.types.State;
 
-public interface Context {
-
-    void schedule(int i, TimeUnit seconds, Runnable runnable);
+public interface Context<T> {
 
     Channel channel();
 
@@ -32,5 +27,7 @@ public interface Context {
     void updateState(@NonNull String uuid, @NonNull State state);
 
     void updateStatus(@NonNull ThingStatus online);
+
+    T config();
 
 }

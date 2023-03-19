@@ -12,8 +12,6 @@
  */
 package org.openhab.binding.lswlogger.internal;
 
-import static org.openhab.binding.lswlogger.internal.LswLoggerBindingConstants.LSWLoggerV5.OPERATING_STATES;
-
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
@@ -29,24 +27,24 @@ import org.openhab.core.types.State;
 
 public class ExtractingUtils {
 
-    public static QuantityType<Temperature> extractShortToTemperature(ByteBuffer buffer) {
+    public static QuantityType<Temperature> shortToTemperature(ByteBuffer buffer) {
         return new QuantityType<>(buffer.getShort(), SIUnits.CELSIUS);
     }
 
-    public static State extractShortAsMinute(ByteBuffer buffer) {
+    public static State shortAsMinute(ByteBuffer buffer) {
         return new QuantityType<>(buffer.getShort(), Units.MINUTE);
     }
 
-    public static State extractIntToHours(ByteBuffer buffer) {
+    public static State intToHours(ByteBuffer buffer) {
         return new QuantityType<>(buffer.getInt(), Units.HOUR);
     }
 
-    public static State extractIntToDecimalAsKiloWattHour(ByteBuffer buffer) {
+    public static State intToDecimalAsKiloWattHour(ByteBuffer buffer) {
         return new QuantityType<>(buffer.getInt(), Units.KILOWATT_HOUR);
     }
 
-    public static StringType extractShortToToStringType(ByteBuffer buffer) {
-        return StringType.valueOf(OPERATING_STATES[buffer.getShort()]);
+    public static StringType extractShortToToStringType(ByteBuffer buffer, String[] states) {
+        return StringType.valueOf(states[buffer.getShort()]);
     }
 
     public static State shortToHundrethsAsKiloWattHour(ByteBuffer buffer) {
@@ -54,7 +52,7 @@ public class ExtractingUtils {
     }
 
     public static State shortToHundrethsAsHz(ByteBuffer buffer) {
-        return new QuantityType<>(buffer.getShort() / 100f, Units.HERTZ);
+        return new QuantityType<>((buffer.getShort()) / 100f, Units.HERTZ);
     }
 
     public static State shortMultiple10AsWatts(ByteBuffer buffer) {
@@ -69,8 +67,16 @@ public class ExtractingUtils {
         return new QuantityType<>(buffer.getShort() / 100f, Units.AMPERE);
     }
 
+    public static State shortToSeconds(ByteBuffer buffer) {
+        return new QuantityType<>(buffer.getShort(), Units.SECOND);
+    }
+
     public static State shortToTenthsAsVoltage(ByteBuffer buffer) {
         return new QuantityType<>(BigDecimal.valueOf(buffer.getShort() / 10f), Units.VOLT);
+    }
+
+    public static State shortToThousandth(ByteBuffer buffer) {
+        return new QuantityType<>(buffer.getShort() / 1000f, Units.ONE);
     }
 
     public static Function<ByteBuffer, State> bytesToString(int i) {

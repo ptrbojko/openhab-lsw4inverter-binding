@@ -12,12 +12,12 @@
  */
 package org.openhab.binding.lswlogger.internal.protocolv5.states;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.InterruptedByTimeoutException;
 import java.time.Instant;
 import java.util.concurrent.TimeUnit;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.openhab.binding.lswlogger.internal.LoggerThingConfiguration;
 import org.openhab.binding.lswlogger.internal.LswLoggerBindingConstants.Common;
 import org.openhab.binding.lswlogger.internal.connection.Context;
@@ -28,7 +28,8 @@ import org.openhab.core.thing.ThingStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ReadingResponseState<C extends Context> implements ProtocolState<C> {
+public class ReadingResponseState<C extends Context<LoggerThingConfiguration>>
+        implements ProtocolState<LoggerThingConfiguration, C> {
 
     private static final Logger logger = LoggerFactory.getLogger(ReadingResponseState.class);
     private static final int WAIT_FOR_NEXT_READ = 15;
@@ -40,27 +41,18 @@ public class ReadingResponseState<C extends Context> implements ProtocolState<C>
     }
 
     @Override
-    public void tick(StateMachineSwitchable sm, C context, LoggerThingConfiguration configuration) {
-        new ReadingHandler(sm, context, configuration.getRefreshTime()).run();
-    }
-
-    @Override
-    public void close(C context, LoggerThingConfiguration configuration) {
-        try {
-            context.channel().close();
-        } catch (IOException e) {
-            logger.error("Cannot disconnect from channel", e);
-        }
+    public void handle(@NonNull StateMachineSwitchable sm, @NonNull C context) {
+        new ReadingHandler(sm, context, context.config().getRefreshTime()).run();
     }
 
     private class ReadingHandler {
 
         private final Instant enterTime;
         private final StateMachineSwitchable sm;
-        private final Context context;
+        private final @NonNull C context;
         private final long period;
 
-        public ReadingHandler(StateMachineSwitchable sm, Context context, long period) {
+        public ReadingHandler(@NonNull StateMachineSwitchable sm, @NonNull C context, long period) {
             this.period = period;
             this.enterTime = Instant.now();
             this.sm = sm;
@@ -72,7 +64,7 @@ public class ReadingResponseState<C extends Context> implements ProtocolState<C>
             if (enterTime.plusSeconds(period).isBefore(Instant.now())) {
                 sm.switchToNextState();
             } else {
-                context.schedule(WAIT_FOR_NEXT_READ, TimeUnit.SECONDS, this::run);
+                sm.schedule(WAIT_FOR_NEXT_READ, TimeUnit.SECONDS, this::run);
             }
         }
 

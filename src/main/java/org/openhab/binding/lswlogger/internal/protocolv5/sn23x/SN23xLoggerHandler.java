@@ -42,75 +42,102 @@ public class SN23xLoggerHandler extends AbstractLoggerHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(SN23xLoggerHandler.class);
 
-    private static final int GROUP_1_FROM_REGISTER = 0x0404;
-    private static final int GROUP_1_TO_REGISTER = 0x042E;
+    private static final int SYSTEM_INFO_FROM_REG = 0x0404;
+    private static final int SYSTEM_INFO_TO_REG = 0x042E;
 
-    private static final int GROUP_2_FROM_REGISTER = 0x0484;
-    private static final int GROUP_2_TO_REGISTER = 0x04AF;
+    private static final int GRID_INFO_FROM_REG = 0x0480;
+    private static final int GRID_INFO_TO_REG = 0x04BC;
+
+    private static final int ENERGY_TOTALS_FROM_REG = 0x0680;
+    private static final int ENERGY_TOTALS_TO_REG = 0x049B;
 
     public SN23xLoggerHandler(Thing thing) {
         super(thing);
     }
 
     @Override
-    protected StateMachine<?> createStateMachine() {
+    protected StateMachine<?, ?> createStateMachine() {
         return createStateMachine(new SN23xLoggerHandlerContext(),
                 this.getConfigAs(LoggerThingConfiguration.class));
     }
 
-    private StateMachine<SN23xLoggerHandlerContext> createStateMachine(
+    private StateMachine<LoggerThingConfiguration, SN23xLoggerHandlerContext> createStateMachine(
             @NonNull SN23xLoggerHandlerContext lswLoggerHandlerContext,
             @NonNull LoggerThingConfiguration configAs) {
-        ProtocolState<SN23xLoggerHandlerContext> initial = new ConnectingState<>();
+        ProtocolState<LoggerThingConfiguration, SN23xLoggerHandlerContext> initial = new ConnectingState<>();
         UnrecoverableErrorState<SN23xLoggerHandlerContext> unrecoverableErrorState = new UnrecoverableErrorState<>();
-        SendingRequestState<SN23xLoggerHandlerContext> sendingRequestForGroup1State = new SendingRequestState<>(
-                GROUP_1_FROM_REGISTER,
-                GROUP_1_TO_REGISTER);
-        SendingRequestState<SN23xLoggerHandlerContext> sendingRequestForGroup2State = new SendingRequestState<>(
-                GROUP_2_FROM_REGISTER,
-                GROUP_2_TO_REGISTER);
-        ReadingResponseState<SN23xLoggerHandlerContext> readingResponse1State = new ReadingResponseState<>(
-                createResponseDispatcher());
-        ReadingResponseState<SN23xLoggerHandlerContext> readingResponse2State = new ReadingResponseState<>(
-                createResponseDispatcher());
+        SendingRequestState<SN23xLoggerHandlerContext> sendingSystemInfoRequestState = new SendingRequestState<>(
+                SYSTEM_INFO_FROM_REG,
+                SYSTEM_INFO_TO_REG);
+        ReadingResponseState<SN23xLoggerHandlerContext> readingSystemInfoState = new ReadingResponseState<>(
+                createResponseDispatcherForSystemInfo());
+        SendingRequestState<SN23xLoggerHandlerContext> sendingGridInfoRequestState = new SendingRequestState<>(
+                GRID_INFO_FROM_REG,
+                GRID_INFO_TO_REG);
+        ReadingResponseState<SN23xLoggerHandlerContext> readingGridInfoState = new ReadingResponseState<>(
+                createResponseDispatcherForGridInfo());
+        SendingRequestState<SN23xLoggerHandlerContext> sendingEnergyTotalsRequestState = new SendingRequestState<>(
+                ENERGY_TOTALS_FROM_REG,
+                ENERGY_TOTALS_TO_REG);
+        ReadingResponseState<SN23xLoggerHandlerContext> readingEnergyTotalsState = new ReadingResponseState<>(
+                createResponseDispatcherForEnergyTotal());
         ReconnectingState<SN23xLoggerHandlerContext> reconnectingState = new ReconnectingState<>();
         WaitingToWakeupInverterReconnectingState<SN23xLoggerHandlerContext> waitingToWakeupInverterReconnectingState = new WaitingToWakeupInverterReconnectingState<>();
-        StateBuilder<SN23xLoggerHandlerContext> builder = new StateBuilder<>();
+        StateBuilder<LoggerThingConfiguration, SN23xLoggerHandlerContext> builder = new StateBuilder<>();
         builder
                 .addContext(lswLoggerHandlerContext)
                 .addConfiguration(configAs)
                 .setInitial(initial)
                 .addState(initial,
-                        routes -> routes.addNextRoute(sendingRequestForGroup1State)
+                        routes -> routes.addNextRoute(sendingSystemInfoRequestState)
                                 .addExceptionRoute(reconnectingState)
                                 .addErrorRoute(unrecoverableErrorState))
-                .addState(sendingRequestForGroup1State,
-                        routes -> routes.addNextRoute(readingResponse1State)
+                .addState(sendingSystemInfoRequestState,
+                        routes -> routes.addNextRoute(readingSystemInfoState)
                                 .addExceptionRoute(reconnectingState))
-                .addState(readingResponse1State,
-                        routes -> routes.addNextRoute(sendingRequestForGroup1State)
+                .addState(readingSystemInfoState,
+                        routes -> routes.addNextRoute(sendingGridInfoRequestState)
+                                .addExceptionRoute(reconnectingState))
+                .addState(sendingGridInfoRequestState,
+                        routes -> routes.addNextRoute(readingGridInfoState)
+                                .addExceptionRoute(reconnectingState))
+                .addState(readingGridInfoState,
+                        routes -> routes.addNextRoute(sendingEnergyTotalsRequestState)
+                                .addExceptionRoute(reconnectingState))
+                .addState(sendingEnergyTotalsRequestState,
+                        routes -> routes.addNextRoute(readingEnergyTotalsState)
+                                .addExceptionRoute(reconnectingState))
+                .addState(readingEnergyTotalsState,
+                        routes -> routes.addNextRoute(sendingSystemInfoRequestState)
                                 .addExceptionRoute(reconnectingState))
                 .addState(reconnectingState,
-                        routes -> routes.addNextRoute(sendingRequestForGroup1State)
+                        routes -> routes.addNextRoute(sendingSystemInfoRequestState)
                                 .addAlternativeRoute(
                                         waitingToWakeupInverterReconnectingState)
                                 .addExceptionRoute(reconnectingState))
-                .addState(sendingRequestForGroup2State,
-                        routes -> routes.addNextRoute(readingResponse2State)
-                                .addExceptionRoute(reconnectingState))
-                .addState(readingResponse2State,
-                        routes -> routes.addNextRoute(sendingRequestForGroup2State)
-                                .addExceptionRoute(reconnectingState))
                 .addState(waitingToWakeupInverterReconnectingState,
-                        route -> route.addNextRoute(sendingRequestForGroup1State)
+                        route -> route.addNextRoute(sendingSystemInfoRequestState)
                                 .addExceptionRoute(
                                         waitingToWakeupInverterReconnectingState)
                                 .addErrorRoute(unrecoverableErrorState));
         return builder.build();
     }
 
-    private ResponseDispatcher createResponseDispatcher() {
+    private ResponseDispatcher createResponseDispatcherForEnergyTotal() {
         return ResponseDispatcher.create(
+                new From0680To069bDataResponseHandler(this::updateState),
+                new UnknownResponseHandler());
+    }
+
+    private ResponseDispatcher createResponseDispatcherForGridInfo() {
+        return ResponseDispatcher.create(
+                new From0480To04afDataResponseHandler(this::updateState),
+                new UnknownResponseHandler());
+    }
+
+    private ResponseDispatcher createResponseDispatcherForSystemInfo() {
+        return ResponseDispatcher.create(
+                new From0404To042eDataResponseHandler(this::updateState),
                 new UnknownResponseHandler());
     }
 

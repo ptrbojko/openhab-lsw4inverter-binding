@@ -29,6 +29,7 @@ public class Channel {
     public synchronized void reopen(InetSocketAddress address, Runnable connectedHandler,
             Consumer<Throwable> failedOpenHandler, Consumer<Throwable> failedConnectHandler) {
         try {
+            throwable = null;
             if (chnl != null && chnl.isOpen()) {
                 chnl.close();
             }
@@ -112,6 +113,7 @@ public class Channel {
 
     public void close() throws IOException {
         chnl.close();
+        throwable = null;
     }
 
 }

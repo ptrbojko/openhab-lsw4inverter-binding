@@ -1,8 +1,7 @@
 package org.openhab.binding.lswlogger.internal.protocolv5;
 
-import java.util.concurrent.TimeUnit;
-
 import org.eclipse.jdt.annotation.NonNull;
+import org.openhab.binding.lswlogger.internal.LoggerThingConfiguration;
 import org.openhab.binding.lswlogger.internal.LswLoggerBindingConstants;
 import org.openhab.binding.lswlogger.internal.connection.Channel;
 import org.openhab.binding.lswlogger.internal.connection.Context;
@@ -15,14 +14,10 @@ import org.openhab.core.thing.ThingStatusDetail;
 import org.openhab.core.thing.binding.BaseThingHandler;
 import org.openhab.core.types.Command;
 import org.openhab.core.types.State;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public abstract class AbstractLoggerHandler extends BaseThingHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(AbstractLoggerHandler.class);
-
-    private StateMachine<?> stateMachine;
+    private StateMachine<?, ?> stateMachine;
 
     public AbstractLoggerHandler(Thing thing) {
         super(thing);
@@ -33,14 +28,14 @@ public abstract class AbstractLoggerHandler extends BaseThingHandler {
         updateStatus(ThingStatus.UNKNOWN);
         disconnectWhenNeeded();
         stateMachine = createStateMachine();
-        stateMachine.start();
+        stateMachine.run();
     }
 
-    protected abstract StateMachine<?> createStateMachine();
+    protected abstract StateMachine<?, ?> createStateMachine();
 
     private void disconnectWhenNeeded() {
         if (stateMachine != null) {
-            stateMachine.close();
+            stateMachine.stop();
         }
     }
 
@@ -61,7 +56,7 @@ public abstract class AbstractLoggerHandler extends BaseThingHandler {
         // no op
     }
 
-    public static class AbstractContext implements Context {
+    public static class AbstractContext implements Context<LoggerThingConfiguration> {
 
         private final AbstractLoggerHandler handler;
 
@@ -70,11 +65,6 @@ public abstract class AbstractLoggerHandler extends BaseThingHandler {
         public AbstractContext(AbstractLoggerHandler handler) {
             this.handler = handler;
             this.channel = new Channel();
-        }
-
-        @Override
-        public final void schedule(int i, TimeUnit unit, Runnable runnable) {
-            handler.scheduler.schedule(runnable, i, unit);
         }
 
         @Override
@@ -100,6 +90,11 @@ public abstract class AbstractLoggerHandler extends BaseThingHandler {
         @Override
         public final void updateStatus(@NonNull ThingStatus status) {
             handler.updateStatus(status);
+        }
+
+        @Override
+        public LoggerThingConfiguration config() {
+            return handler.getConfigAs(LoggerThingConfiguration.class);
         }
 
     }

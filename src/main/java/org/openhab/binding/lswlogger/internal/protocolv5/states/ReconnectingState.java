@@ -16,13 +16,15 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.openhab.binding.lswlogger.internal.LoggerThingConfiguration;
 import org.openhab.binding.lswlogger.internal.connection.Context;
 import org.openhab.binding.lswlogger.internal.connection.StateMachineSwitchable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ReconnectingState<C extends Context> implements ProtocolState<C> {
+public class ReconnectingState<C extends Context<LoggerThingConfiguration>>
+        implements ProtocolState<LoggerThingConfiguration, C> {
 
     private static final Logger logger = LoggerFactory.getLogger(ReconnectingState.class);
     public static final int WAIT_BEFORE_RECONNECT_SECONDS = 20;
@@ -30,17 +32,17 @@ public class ReconnectingState<C extends Context> implements ProtocolState<C> {
     private final RetriesCounter retriesCounter = new RetriesCounter();
 
     @Override
-    public void tick(StateMachineSwitchable sm, C context, LoggerThingConfiguration configuration) {
-        if (retriesCounter.getRetries() > configuration.getRetriesCount()) {
+    public void handle(@NonNull StateMachineSwitchable sm, @NonNull C context) {
+        if (retriesCounter.getRetries() > context.config().getRetriesCount()) {
             retriesCounter.clearRetries();
             sm.switchToAlternativeState();
             return;
         }
         logger.debug("Retrying to connect. Tries count {}", retriesCounter.getRetries());
-        close(context, configuration);
-        context.schedule(WAIT_BEFORE_RECONNECT_SECONDS, TimeUnit.SECONDS,
+        close(context);
+        sm.schedule(WAIT_BEFORE_RECONNECT_SECONDS, TimeUnit.SECONDS,
                 () -> context.channel().reopen(
-                        new InetSocketAddress(configuration.getHostname(), configuration.getPort()),
+                        new InetSocketAddress(context.config().getHostname(), context.config().getPort()),
                         () -> {
                             retriesCounter.clearRetries();
                             sm.switchToNextState();
@@ -57,8 +59,7 @@ public class ReconnectingState<C extends Context> implements ProtocolState<C> {
                         }));
     }
 
-    @Override
-    public void close(C context, LoggerThingConfiguration configuration) {
+    private void close(C context) {
         try {
             context.channel().close();
         } catch (IOException e) {

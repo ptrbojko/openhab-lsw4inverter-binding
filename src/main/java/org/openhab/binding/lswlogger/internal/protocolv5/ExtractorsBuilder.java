@@ -35,7 +35,7 @@ public class ExtractorsBuilder {
     }
 
     public ExtractorsBuilder addBytesEater(int count) {
-        extractors.add(buffer -> buffer.position(count));
+        extractors.add(buffer -> buffer.position(count + buffer.position()));
         return this;
     }
 
@@ -45,5 +45,9 @@ public class ExtractorsBuilder {
 
     public interface ChannelStateUpdate {
         void apply(String uuid, State state);
+    }
+
+    public ExtractorsBuilder add(String channelName, Object extractor) {
+        return null;
     }
 }

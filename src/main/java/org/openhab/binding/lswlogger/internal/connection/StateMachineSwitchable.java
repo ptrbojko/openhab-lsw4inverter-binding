@@ -1,5 +1,7 @@
 package org.openhab.binding.lswlogger.internal.connection;
 
+import java.util.concurrent.TimeUnit;
+
 public interface StateMachineSwitchable {
     void switchToNextState();
 
@@ -8,5 +10,7 @@ public interface StateMachineSwitchable {
     void switchToExceptionState();
 
     void switchToErrorState();
+
+    void schedule(int calculateWaitPeriod, TimeUnit minutes, Runnable runnable);
 
 }

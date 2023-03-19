@@ -15,5 +15,5 @@ package org.openhab.binding.lswlogger.internal.protocolv5;
 import java.nio.ByteBuffer;
 
 public interface ResponseHandler {
-    boolean accept(ByteBuffer buffer);
+    boolean handle(ByteBuffer buffer);
 }

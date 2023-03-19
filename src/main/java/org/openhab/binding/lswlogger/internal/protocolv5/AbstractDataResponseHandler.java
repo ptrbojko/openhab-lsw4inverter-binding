@@ -24,15 +24,15 @@ public abstract class AbstractDataResponseHandler implements ResponseHandler {
     }
 
     @Override
-    public boolean accept(ByteBuffer buffer) {
-        if (!(buffer.remaining() == getResponseLength())) {
+    public boolean handle(ByteBuffer buffer) {
+        if (!accepts(buffer)) {
             return false;
         }
         extract(buffer);
         return true;
     }
 
-    protected abstract int getResponseLength();
+    protected abstract boolean accepts(ByteBuffer buffer);
 
     private void extract(ByteBuffer buffer) {
         performActionsBeforeExtraction(buffer);

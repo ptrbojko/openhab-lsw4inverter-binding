@@ -29,8 +29,8 @@ public class ExtendedDataResponseHandler extends DataResponseHandler {
     }
 
     @Override
-    protected int getResponseLength() {
-        return RESPONSE_LENGTH;
+    protected boolean accepts(ByteBuffer buffer) {
+        return buffer.remaining() == RESPONSE_LENGTH;
     }
 
     @Override

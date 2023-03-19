@@ -23,7 +23,7 @@ public class UnknownResponseHandler implements ResponseHandler {
     private static final Logger logger = LoggerFactory.getLogger(UnknownResponseHandler.class);
 
     @Override
-    public boolean accept(ByteBuffer buffer) {
+    public boolean handle(ByteBuffer buffer) {
         logger.warn("Unknown response, length {}: {}", buffer.remaining(), ByteUtils.toHex(buffer));
         return true;
     }

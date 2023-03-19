@@ -26,8 +26,17 @@ public class ByteUtils {
             hexChars[position * 3] = HEX_ARRAY[v >>> 4];
             hexChars[position * 3 + 1] = HEX_ARRAY[v & 0x0F];
             hexChars[position * 3 + 2] = ':';
-         }
+        }
         return new String(hexChars, StandardCharsets.UTF_8);
     }
-    
+
+    public static ByteBuffer fromHex(String msg) {
+        String[] strings = msg.split(":");
+        ByteBuffer result = ByteBuffer.allocate(strings.length);
+        for (String str : strings) {
+            result.put((byte) ((Character.digit(str.charAt(0), 16) << 4) + Character.digit(str.charAt(1), 16)));
+        }
+        return result;
+    }
+
 }

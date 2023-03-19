@@ -35,6 +35,9 @@ import static org.openhab.binding.lswlogger.internal.LswLoggerBindingConstants.L
 import static org.openhab.binding.lswlogger.internal.LswLoggerBindingConstants.LSWLoggerV5.todayGenerationTimeChannel;
 import static org.openhab.binding.lswlogger.internal.LswLoggerBindingConstants.LSWLoggerV5.totalEnergyProductionChannel;
 import static org.openhab.binding.lswlogger.internal.LswLoggerBindingConstants.LSWLoggerV5.totalGenerationTimeChannel;
+import static org.openhab.binding.lswlogger.internal.LswLoggerBindingConstants.LSWLoggerV5.OPERATING_STATES;
+
+import java.nio.ByteBuffer;
 
 import org.openhab.binding.lswlogger.internal.ExtractingUtils;
 import org.openhab.binding.lswlogger.internal.protocolv5.AbstractDataResponseHandler;
@@ -46,7 +49,7 @@ public class DataResponseHandler extends AbstractDataResponseHandler {
 
     public DataResponseHandler(ExtractorsBuilder.ChannelStateUpdate stateUpdate) {
         super(new ExtractorsBuilder(stateUpdate).addBytesEater(28)
-                .add(operatingStateChannel, ExtractingUtils::extractShortToToStringType)
+                .add(operatingStateChannel, v -> ExtractingUtils.extractShortToToStringType(v, OPERATING_STATES))
                 .add(faultChannel, ExtractingUtils.bytesToString(10))
                 .add(gridAVoltageChannel, ExtractingUtils::shortToTenthsAsVoltage)
                 .add(gridACurrentChannel, ExtractingUtils::shortToHundrethsAsAmpers)
@@ -63,16 +66,16 @@ public class DataResponseHandler extends AbstractDataResponseHandler {
                 .add(Phase2CurrentChannel, ExtractingUtils::shortToHundrethsAsAmpers)
                 .add(Phase3VoltageChannel, ExtractingUtils::shortToTenthsAsVoltage)
                 .add(Phase3CurrentChannel, ExtractingUtils::shortToHundrethsAsAmpers)
-                .add(totalEnergyProductionChannel, ExtractingUtils::extractIntToDecimalAsKiloWattHour)
-                .add(totalGenerationTimeChannel, ExtractingUtils::extractIntToHours)
+                .add(totalEnergyProductionChannel, ExtractingUtils::intToDecimalAsKiloWattHour)
+                .add(totalGenerationTimeChannel, ExtractingUtils::intToHours)
                 .add(todayEnergyProductionChannel, ExtractingUtils::shortToHundrethsAsKiloWattHour)
-                .add(todayGenerationTimeChannel, ExtractingUtils::extractShortAsMinute)
-                .add(inverterModuleTemperatureChannel, ExtractingUtils::extractShortToTemperature)
-                .add(inverterInnerTemperatureChannel, ExtractingUtils::extractShortToTemperature));
+                .add(todayGenerationTimeChannel, ExtractingUtils::shortAsMinute)
+                .add(inverterModuleTemperatureChannel, ExtractingUtils::shortToTemperature)
+                .add(inverterInnerTemperatureChannel, ExtractingUtils::shortToTemperature));
     }
 
     @Override
-    protected int getResponseLength() {
-        return RESPONSE_LENGTH;
+    protected boolean accepts(ByteBuffer buffer) {
+        return buffer.remaining() == RESPONSE_LENGTH;
     }
 }

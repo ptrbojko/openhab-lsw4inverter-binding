@@ -29,7 +29,7 @@ public class ResponseDispatcher {
     public void accept(ByteBuffer buffer) {
         for (ResponseHandler handler : handlers) {
             buffer.rewind();
-            if (handler.accept(buffer)) {
+            if (handler.handle(buffer)) {
                 logger.debug("Handler {} matched response", handler.getClass());
                 break;
             }

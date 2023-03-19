@@ -2,85 +2,88 @@ package org.openhab.binding.lswlogger.internal.protocolv5.states;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Consumer;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.openhab.binding.lswlogger.internal.LoggerThingConfiguration;
 import org.openhab.binding.lswlogger.internal.connection.Context;
 
-public class StateBuilder<C extends Context> {
+public class StateBuilder<T, C extends Context<T>> {
 
-    private final Map<ProtocolState<C>, ProtocolStateMeta<C>> states = new HashMap<>();
-    private C context;
-    private LoggerThingConfiguration configuration;
-    private ProtocolState<C> initialState;
+    private final Map<ProtocolState<T, C>, ProtocolStateMeta<T, C>> states = new HashMap<>();
+    private @NonNull C context;
+    private @NonNull LoggerThingConfiguration configuration;
+    private @NonNull ProtocolState<T, C> initialState;
+    private @NonNull ScheduledExecutorService scheduler;
 
-    public StateBuilder<C> addState(ProtocolState<C> state, Consumer<RouteConfigurer<C>> routeConfiguration) {
-        RouteBuilder<C> builder = new RouteBuilder<>();
+    public StateBuilder<T, C> addState(ProtocolState<T, C> state, Consumer<RouteConfigurer<T, C>> routeConfiguration) {
+        RouteBuilder<T, C> builder = new RouteBuilder<>();
         routeConfiguration.accept(builder);
         states.put(state, builder.buildForSource(state));
         return this;
     }
 
-    public StateBuilder<C> setInitial(ProtocolState<C> initialState) {
+    public StateBuilder<T, C> setInitial(@NonNull ProtocolState<T, C> initialState) {
         this.initialState = initialState;
         return this;
     }
 
-    public StateBuilder<C> addContext(C context) {
+    public StateBuilder<T, C> addContext(@NonNull C context) {
         this.context = context;
         return this;
     }
 
-    public StateBuilder<C> addConfiguration(LoggerThingConfiguration configuration) {
+    public StateBuilder<T, C> addConfiguration(@NonNull LoggerThingConfiguration configuration) {
         this.configuration = configuration;
         return this;
     }
 
-    public StateMachine<C> build() {
-        return new StateMachine<C>(context, configuration, states, initialState);
+    public StateMachine<T, C> build() {
+        return new StateMachine<T, C>(states, initialState, context, scheduler);
     }
 
-    public interface RouteConfigurer<C extends Context> {
-        RouteConfigurer<C> addNextRoute(ProtocolState<C> state);
+    public interface RouteConfigurer<T, C extends Context<T>> {
+        RouteConfigurer<T, C> addNextRoute(ProtocolState<T, C> state);
 
-        RouteConfigurer<C> addAlternativeRoute(ProtocolState<C> state);
+        RouteConfigurer<T, C> addAlternativeRoute(ProtocolState<T, C> state);
 
-        RouteConfigurer<C> addExceptionRoute(ProtocolState<C> state);
+        RouteConfigurer<T, C> addExceptionRoute(ProtocolState<T, C> state);
 
-        RouteConfigurer<C> addErrorRoute(ProtocolState<C> state);
+        RouteConfigurer<T, C> addErrorRoute(ProtocolState<T, C> state);
     }
 
-    public static class RouteBuilder<C extends Context> implements RouteConfigurer<C> {
+    public static class RouteBuilder<T, C extends Context<T>> implements RouteConfigurer<T, C> {
 
-        private ProtocolState<C> nextState;
-        private ProtocolState<C> alternativeState;
-        private ProtocolState<C> exceptionState;
-        private ProtocolState<C> errorState;
+        private ProtocolState<T, C> nextState;
+        private ProtocolState<T, C> alternativeState;
+        private ProtocolState<T, C> exceptionState;
+        private ProtocolState<T, C> errorState;
 
         @Override
-        public RouteConfigurer<C> addNextRoute(ProtocolState<C> state) {
+        public RouteConfigurer<T, C> addNextRoute(ProtocolState<T, C> state) {
             this.nextState = state;
             return this;
         }
 
-        public ProtocolStateMeta<C> buildForSource(ProtocolState<C> state) {
-            return new ProtocolStateMeta<C>(state, nextState, alternativeState, exceptionState, errorState);
+        public ProtocolStateMeta<T, C> buildForSource(ProtocolState<T, C> state) {
+            return new ProtocolStateMeta<T, C>(state, nextState, alternativeState, exceptionState, errorState);
         }
 
         @Override
-        public RouteConfigurer<C> addAlternativeRoute(ProtocolState<C> state) {
+        public RouteConfigurer<T, C> addAlternativeRoute(ProtocolState<T, C> state) {
             this.alternativeState = state;
             return this;
         }
 
         @Override
-        public RouteConfigurer<C> addExceptionRoute(ProtocolState<C> state) {
+        public RouteConfigurer<T, C> addExceptionRoute(ProtocolState<T, C> state) {
             this.exceptionState = state;
             return this;
         }
 
         @Override
-        public RouteConfigurer<C> addErrorRoute(ProtocolState<C> state) {
+        public RouteConfigurer<T, C> addErrorRoute(ProtocolState<T, C> state) {
             this.errorState = state;
             return this;
         }
