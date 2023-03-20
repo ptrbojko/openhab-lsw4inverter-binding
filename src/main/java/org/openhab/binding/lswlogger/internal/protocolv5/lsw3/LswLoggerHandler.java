@@ -73,6 +73,7 @@ public class LswLoggerHandler extends AbstractLoggerHandler {
         builder
                 .addContext(lswLoggerHandlerContext)
                 .addConfiguration(configAs)
+                .addScheduler(scheduler)
                 .setInitial(initial)
                 .addState(initial,
                         routes -> routes.addNextRoute(sendingRequestState)

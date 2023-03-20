@@ -60,18 +60,23 @@ public class ReadingResponseState<C extends Context<LoggerThingConfiguration>>
         }
 
         public void run() {
-            context.channel().read(this::onRead, this::failed);
+            context.channel().read(this::onRead, this::handleNoMessage, this::failed);
+        }
+
+        public void onRead(ByteBuffer message) {
+            logger.debug("Trying to read a message");
+            context.updateState(Common.onlineChannel, OnOffType.ON);
+            context.updateStatus(ThingStatus.ONLINE);
+            responseDispatcher.accept(message);
+        }
+
+        public void handleNoMessage() {
+            logger.debug("No message to read, trying to schedule next read or switching to next state");
             if (enterTime.plusSeconds(period).isBefore(Instant.now())) {
                 sm.switchToNextState();
             } else {
                 sm.schedule(WAIT_FOR_NEXT_READ, TimeUnit.SECONDS, this::run);
             }
-        }
-
-        public void onRead(ByteBuffer message) {
-            context.updateState(Common.onlineChannel, OnOffType.ON);
-            context.updateStatus(ThingStatus.ONLINE);
-            responseDispatcher.accept(message);
         }
 
         public void failed(Throwable throwable) {

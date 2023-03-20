@@ -12,10 +12,9 @@ import org.openhab.binding.lswlogger.internal.connection.Context;
 public class StateBuilder<T, C extends Context<T>> {
 
     private final Map<ProtocolState<T, C>, ProtocolStateMeta<T, C>> states = new HashMap<>();
-    private @NonNull C context;
-    private @NonNull LoggerThingConfiguration configuration;
-    private @NonNull ProtocolState<T, C> initialState;
-    private @NonNull ScheduledExecutorService scheduler;
+    private C context;
+    private ProtocolState<T, C> initialState;
+    private ScheduledExecutorService scheduler;
 
     public StateBuilder<T, C> addState(ProtocolState<T, C> state, Consumer<RouteConfigurer<T, C>> routeConfiguration) {
         RouteBuilder<T, C> builder = new RouteBuilder<>();
@@ -34,8 +33,12 @@ public class StateBuilder<T, C extends Context<T>> {
         return this;
     }
 
+    public StateBuilder<T,C> addScheduler(ScheduledExecutorService service) {
+        this.scheduler = service;
+        return this;
+    }
+
     public StateBuilder<T, C> addConfiguration(@NonNull LoggerThingConfiguration configuration) {
-        this.configuration = configuration;
         return this;
     }
 
@@ -67,7 +70,7 @@ public class StateBuilder<T, C extends Context<T>> {
         }
 
         public ProtocolStateMeta<T, C> buildForSource(ProtocolState<T, C> state) {
-            return new ProtocolStateMeta<T, C>(state, nextState, alternativeState, exceptionState, errorState);
+            return new ProtocolStateMetaImpl<T, C>(state, nextState, alternativeState, exceptionState, errorState);
         }
 
         @Override

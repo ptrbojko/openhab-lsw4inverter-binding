@@ -6,9 +6,9 @@ import org.openhab.binding.lswlogger.internal.connection.StateMachineSwitchable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class FinalState<T, C extends Context<T>> implements ProtocolState<T,C> {
+public class FinalState<T, C extends Context<T>> implements ProtocolState<T, C> {
 
-    private static final Logger logger = LoggerFactory.getLogger(ConnectingState.class);
+    private static final Logger logger = LoggerFactory.getLogger(FinalState.class);
 
     @Override
     public void handle(@NonNull StateMachineSwitchable stateMachine, @NonNull C context) {

@@ -87,6 +87,7 @@ public class SN23xLoggerHandler extends AbstractLoggerHandler {
         builder
                 .addContext(lswLoggerHandlerContext)
                 .addConfiguration(configAs)
+                .addScheduler(scheduler)
                 .setInitial(initial)
                 .addState(initial,
                         routes -> routes.addNextRoute(sendingSystemInfoRequestState)

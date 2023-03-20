@@ -28,7 +28,7 @@ public abstract class AbstractLoggerHandler extends BaseThingHandler {
         updateStatus(ThingStatus.UNKNOWN);
         disconnectWhenNeeded();
         stateMachine = createStateMachine();
-        stateMachine.run();
+        scheduler.execute(stateMachine::run);
     }
 
     protected abstract StateMachine<?, ?> createStateMachine();

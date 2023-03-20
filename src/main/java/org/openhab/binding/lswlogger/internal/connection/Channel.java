@@ -10,10 +10,14 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class Channel {
 
-    private static final int BUFFERS_COUNT = 4;
+    private static final Logger logger = LoggerFactory.getLogger(Channel.class);
 
+    private static final int BUFFERS_COUNT = 4;
     private static final int SENDING_TIMEOUT = 10;
 
     private final ArrayBlockingQueue<ByteBuffer> buffers = new ArrayBlockingQueue<>(BUFFERS_COUNT);
@@ -49,6 +53,7 @@ public class Channel {
 
             });
         } catch (Exception e) {
+            logger.error("Error during reopen", e);
             failedOpenHandler.accept(e);
         }
     }
@@ -101,7 +106,7 @@ public class Channel {
         });
     }
 
-    public void read(Consumer<ByteBuffer> reader, Consumer<Throwable> failedHandler) {
+    public void read(Consumer<ByteBuffer> reader, Runnable noMessageHandler, Consumer<Throwable> failedHandler) {
         if (throwable != null) {
             failedHandler.accept(throwable);
         }
@@ -109,6 +114,7 @@ public class Channel {
             reader.accept(message);
             buffers.offer(message);
         }
+        noMessageHandler.run();
     }
 
     public void close() throws IOException {
