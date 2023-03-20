@@ -3,15 +3,17 @@ package org.openhab.binding.lswlogger.internal.protocolv5.states;
 import org.openhab.binding.lswlogger.internal.connection.Context;
 
 public class ProtocolStateMetaImpl<T, C extends Context<T>> implements ProtocolStateMeta<T, C> {
+    private final String description;
     private final ProtocolState<T, C> state;
     private final ProtocolState<T, C> nextState;
     private final ProtocolState<T, C> alternativeState;
     private final ProtocolState<T, C> exceptioState;
     private final ProtocolState<T, C> errorState;
 
-    public ProtocolStateMetaImpl(ProtocolState<T, C> state, ProtocolState<T, C> nextState,
+    public ProtocolStateMetaImpl(String description, ProtocolState<T, C> state, ProtocolState<T, C> nextState,
             ProtocolState<T, C> alternativeState,
             ProtocolState<T, C> exceptioState, ProtocolState<T, C> errorState) {
+        this.description = description;
         this.state = state;
         this.nextState = nextState;
         this.alternativeState = alternativeState;
@@ -45,11 +47,7 @@ public class ProtocolStateMetaImpl<T, C extends Context<T>> implements ProtocolS
     }
 
     @Override
-    public String toString() {
-        return "ProtocolStateMetaImpl [state=" + state.getClass() + ", nextState=" + nextState.getClass()
-                + ", alternativeState="
-                + alternativeState.getClass() + ", exceptioState=" + exceptioState.getClass() + ", errorState="
-                + errorState.getClass() + "]";
+    public String getDescription() {
+        return description;
     }
-
 }

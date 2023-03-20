@@ -24,8 +24,8 @@ import org.openhab.binding.lswlogger.internal.protocolv5.states.ProtocolState;
 import org.openhab.binding.lswlogger.internal.protocolv5.states.ReadingResponseState;
 import org.openhab.binding.lswlogger.internal.protocolv5.states.ReconnectingState;
 import org.openhab.binding.lswlogger.internal.protocolv5.states.SendingRequestState;
-import org.openhab.binding.lswlogger.internal.protocolv5.states.StateBuilder;
 import org.openhab.binding.lswlogger.internal.protocolv5.states.StateMachine;
+import org.openhab.binding.lswlogger.internal.protocolv5.states.StateMachineBuilder;
 import org.openhab.binding.lswlogger.internal.protocolv5.states.UnrecoverableErrorState;
 import org.openhab.binding.lswlogger.internal.protocolv5.states.WaitingToWakeupInverterReconnectingState;
 import org.openhab.core.thing.Thing;
@@ -69,28 +69,28 @@ public class LswLoggerHandler extends AbstractLoggerHandler {
                 createResponseDispatcher());
         ReconnectingState<LswLoggerHandlerContext> reconnectingState = new ReconnectingState<>();
         WaitingToWakeupInverterReconnectingState<LswLoggerHandlerContext> waitingToWakeupInverterReconnectingState = new WaitingToWakeupInverterReconnectingState<>();
-        StateBuilder<LoggerThingConfiguration, LswLoggerHandlerContext> builder = new StateBuilder<>();
+        StateMachineBuilder<LoggerThingConfiguration, LswLoggerHandlerContext> builder = new StateMachineBuilder<>();
         builder
                 .addContext(lswLoggerHandlerContext)
                 .addConfiguration(configAs)
                 .addScheduler(scheduler)
                 .setInitial(initial)
-                .addState(initial,
+                .addState("Initial", initial,
                         routes -> routes.addNextRoute(sendingRequestState)
                                 .addExceptionRoute(reconnectingState)
                                 .addErrorRoute(unrecoverableErrorState))
-                .addState(sendingRequestState,
+                .addState("Sending request", sendingRequestState,
                         routes -> routes.addNextRoute(readingResponseState)
                                 .addExceptionRoute(reconnectingState))
-                .addState(readingResponseState,
+                .addState("Reading response", readingResponseState,
                         routes -> routes.addNextRoute(sendingRequestState)
                                 .addExceptionRoute(reconnectingState))
-                .addState(reconnectingState,
+                .addState("Reconnecting", reconnectingState,
                         routes -> routes.addNextRoute(sendingRequestState)
                                 .addAlternativeRoute(
                                         waitingToWakeupInverterReconnectingState)
                                 .addExceptionRoute(reconnectingState))
-                .addState(waitingToWakeupInverterReconnectingState,
+                .addState("Watining for inverter to wakeup", waitingToWakeupInverterReconnectingState,
                         route -> route.addNextRoute(sendingRequestState)
                                 .addExceptionRoute(
                                         waitingToWakeupInverterReconnectingState)

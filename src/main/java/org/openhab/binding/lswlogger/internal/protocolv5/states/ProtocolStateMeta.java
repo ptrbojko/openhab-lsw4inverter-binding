@@ -14,4 +14,6 @@ public interface ProtocolStateMeta<T, C extends Context<T>> {
 
     ProtocolState<T, C> getErrorState();
 
+    String getDescription();
+
 }

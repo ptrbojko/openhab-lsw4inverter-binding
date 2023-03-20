@@ -22,8 +22,8 @@ import org.openhab.binding.lswlogger.internal.protocolv5.states.ProtocolState;
 import org.openhab.binding.lswlogger.internal.protocolv5.states.ReadingResponseState;
 import org.openhab.binding.lswlogger.internal.protocolv5.states.ReconnectingState;
 import org.openhab.binding.lswlogger.internal.protocolv5.states.SendingRequestState;
-import org.openhab.binding.lswlogger.internal.protocolv5.states.StateBuilder;
 import org.openhab.binding.lswlogger.internal.protocolv5.states.StateMachine;
+import org.openhab.binding.lswlogger.internal.protocolv5.states.StateMachineBuilder;
 import org.openhab.binding.lswlogger.internal.protocolv5.states.UnrecoverableErrorState;
 import org.openhab.binding.lswlogger.internal.protocolv5.states.WaitingToWakeupInverterReconnectingState;
 import org.openhab.core.thing.Thing;
@@ -83,40 +83,40 @@ public class SN23xLoggerHandler extends AbstractLoggerHandler {
                 createResponseDispatcherForEnergyTotal());
         ReconnectingState<SN23xLoggerHandlerContext> reconnectingState = new ReconnectingState<>();
         WaitingToWakeupInverterReconnectingState<SN23xLoggerHandlerContext> waitingToWakeupInverterReconnectingState = new WaitingToWakeupInverterReconnectingState<>();
-        StateBuilder<LoggerThingConfiguration, SN23xLoggerHandlerContext> builder = new StateBuilder<>();
+        StateMachineBuilder<LoggerThingConfiguration, SN23xLoggerHandlerContext> builder = new StateMachineBuilder<>();
         builder
                 .addContext(lswLoggerHandlerContext)
                 .addConfiguration(configAs)
                 .addScheduler(scheduler)
                 .setInitial(initial)
-                .addState(initial,
+                .addState("Initial", initial,
                         routes -> routes.addNextRoute(sendingSystemInfoRequestState)
                                 .addExceptionRoute(reconnectingState)
                                 .addErrorRoute(unrecoverableErrorState))
-                .addState(sendingSystemInfoRequestState,
+                .addState("Sending system info request", sendingSystemInfoRequestState,
                         routes -> routes.addNextRoute(readingSystemInfoState)
                                 .addExceptionRoute(reconnectingState))
-                .addState(readingSystemInfoState,
+                .addState("Reading system info response", readingSystemInfoState,
                         routes -> routes.addNextRoute(sendingGridInfoRequestState)
                                 .addExceptionRoute(reconnectingState))
-                .addState(sendingGridInfoRequestState,
+                .addState("Sending grid info request", sendingGridInfoRequestState,
                         routes -> routes.addNextRoute(readingGridInfoState)
                                 .addExceptionRoute(reconnectingState))
-                .addState(readingGridInfoState,
+                .addState("Reaidng grid info response", readingGridInfoState,
                         routes -> routes.addNextRoute(sendingEnergyTotalsRequestState)
                                 .addExceptionRoute(reconnectingState))
-                .addState(sendingEnergyTotalsRequestState,
+                .addState("Sending energy totals request", sendingEnergyTotalsRequestState,
                         routes -> routes.addNextRoute(readingEnergyTotalsState)
                                 .addExceptionRoute(reconnectingState))
-                .addState(readingEnergyTotalsState,
+                .addState("Reading energy totals response", readingEnergyTotalsState,
                         routes -> routes.addNextRoute(sendingSystemInfoRequestState)
                                 .addExceptionRoute(reconnectingState))
-                .addState(reconnectingState,
+                .addState("Reconnecting", reconnectingState,
                         routes -> routes.addNextRoute(sendingSystemInfoRequestState)
                                 .addAlternativeRoute(
                                         waitingToWakeupInverterReconnectingState)
                                 .addExceptionRoute(reconnectingState))
-                .addState(waitingToWakeupInverterReconnectingState,
+                .addState("Watining for inverter to wakeup", waitingToWakeupInverterReconnectingState,
                         route -> route.addNextRoute(sendingSystemInfoRequestState)
                                 .addExceptionRoute(
                                         waitingToWakeupInverterReconnectingState)
