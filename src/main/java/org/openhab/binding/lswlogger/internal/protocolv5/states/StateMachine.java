@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -76,6 +77,8 @@ public class StateMachine<T, C extends Context<T>> implements StateMachineSwitch
             try {
                 logger.debug("Waiting for state to process");
                 current = nextStateQueue.take();
+                logger.debug("Taken state {} to process", current.getDescription());
+                future.ifPresent(this::waitForScheduledTask);
             } catch (InterruptedException e) {
                 logger.error("Interruped - processing ends", e);
                 return;
@@ -87,6 +90,14 @@ public class StateMachine<T, C extends Context<T>> implements StateMachineSwitch
                 logger.info("Final state met, processing ends");
                 return;
             }
+        }
+    }
+
+    private void waitForScheduledTask(ScheduledFuture<?> sf) {
+        try {
+            sf.get();
+        } catch (InterruptedException | ExecutionException e) {
+            logger.warn("Scheduled task interrupted", e);
         }
     }
 
