@@ -109,6 +109,7 @@ public class Channel {
     public void read(Consumer<ByteBuffer> reader, Runnable noMessageHandler, Consumer<Throwable> failedHandler) {
         if (throwable != null) {
             failedHandler.accept(throwable);
+            return;
         }
         for (ByteBuffer message = messages.poll(); message != null; message = messages.poll()) {
             reader.accept(message);
