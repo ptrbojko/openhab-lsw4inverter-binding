@@ -42,12 +42,13 @@ public class Channel {
 
                 @Override
                 public void completed(Void v1, Void v2) {
-                    connectedHandler.run();
                     listen();
+                    connectedHandler.run();
                 }
 
                 @Override
                 public void failed(Throwable t, Void v) {
+                    logger.error("Error during connecting", t);
                     failedConnectHandler.accept(t);
                 }
 
@@ -59,12 +60,14 @@ public class Channel {
     }
 
     private void listen() {
+        logger.debug("Listening for data, buffers {} messages {}", buffers.size(), messages.size());
         ByteBuffer buffer = buffers.remove();
         buffer.clear();
         chnl.read(buffer, null, new CompletionHandler<Integer, Void>() {
 
             @Override
             public void completed(Integer bytesRead, Void attachment) {
+                logger.debug("Received {} bytes", bytesRead);
                 buffer.flip();
                 try {
                     messages.put(buffer);
@@ -78,6 +81,11 @@ public class Channel {
 
             @Override
             public void failed(Throwable t, Void v) {
+                try {
+                    buffers.put(buffer);
+                } catch (InterruptedException e) {
+                    logger.error("Abnormal case in channel wrapper", e);
+                }
                 throwable = t;
             }
 
@@ -107,6 +115,7 @@ public class Channel {
     }
 
     public void read(Consumer<ByteBuffer> reader, Runnable noMessageHandler, Consumer<Throwable> failedHandler) {
+        logger.debug("Consuming messages, buffers {} messages {}", buffers.size(), messages.size());
         if (throwable != null) {
             failedHandler.accept(throwable);
             return;

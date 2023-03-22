@@ -1,5 +1,7 @@
 package org.openhab.binding.lswlogger.internal.protocolv5.states;
 
+import java.io.IOException;
+
 import org.eclipse.jdt.annotation.NonNull;
 import org.openhab.binding.lswlogger.internal.connection.Context;
 import org.openhab.binding.lswlogger.internal.connection.StateMachineSwitchable;
@@ -12,7 +14,12 @@ public class FinalState<T, C extends Context<T>> implements ProtocolState<T, C> 
 
     @Override
     public void handle(@NonNull StateMachineSwitchable stateMachine, @NonNull C context) {
-        logger.info("Final state. No next steps should be processed");
+        logger.info("Final state. No next steps should be processed. Closing TCP channel.");
+        try {
+            context.channel().close();
+        } catch (IOException e) {
+            logger.warn("Problem closing channel", e);
+        }
     }
 
 }
