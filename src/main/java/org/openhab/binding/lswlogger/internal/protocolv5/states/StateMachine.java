@@ -84,7 +84,7 @@ public class StateMachine<T, C extends Context<T>> implements StateMachineSwitch
                 return;
             }
             logger.debug("Entering {}", current.getDescription());
-            current.getState().handle(this, context);
+            current.handle(this, context);
             logger.debug("Leaving {}", current.getDescription());
             if (current.getState() instanceof FinalState) {
                 logger.info("Final state met, processing ends");
@@ -126,48 +126,25 @@ public class StateMachine<T, C extends Context<T>> implements StateMachineSwitch
         nextStateQueue.add(stateMeta);
     }
 
-    private static class MetaRunnableWrapper<T, C extends Context<T>> implements ProtocolStateMeta<T, C> {
+    private static class MetaRunnableWrapper<T, C extends Context<T>> extends ProtocolStateMetaImpl<T, C> {
 
-        private final ProtocolStateMeta<T, C> wrapped;
         private final Runnable runnable;
 
         public MetaRunnableWrapper(ProtocolStateMeta<T, C> wrapped, Runnable runnable) {
-            this.wrapped = wrapped;
+            super(wrapped.getDescription(), wrapped.getState(), wrapped.getNextState(), wrapped.getAlternativeState(),
+                    wrapped.getExceptioState(), wrapped.getErrorState());
             this.runnable = runnable;
+
         }
 
         @Override
-        public ProtocolState<T, C> getState() {
-            return this::handleWithWrapper;
-        }
-
-        private void handleWithWrapper(@NonNull StateMachineSwitchable stateMachine, @NonNull C context) {
+        public void handle(@NonNull StateMachineSwitchable stateMachine, @NonNull C context) {
             runnable.run();
-        };
-
-        @Override
-        public ProtocolState<T, C> getNextState() {
-            return wrapped.getNextState();
-        }
-
-        @Override
-        public ProtocolState<T, C> getAlternativeState() {
-            return wrapped.getAlternativeState();
-        }
-
-        @Override
-        public ProtocolState<T, C> getExceptioState() {
-            return wrapped.getExceptioState();
-        }
-
-        @Override
-        public ProtocolState<T, C> getErrorState() {
-            return wrapped.getErrorState();
         }
 
         @Override
         public String getDescription() {
-            return "Wrapper [" + wrapped.getDescription() + "]";
+            return "Wrapper [" + super.getDescription() + "]";
         }
     }
 }
