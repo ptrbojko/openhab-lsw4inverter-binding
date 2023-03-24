@@ -28,7 +28,7 @@ public class From0680To069bDataResponseHandler extends AbstractDataResponseHandl
 
     @Override
     protected boolean accepts(ByteBuffer buffer) {
-        return false;
+        return buffer.remaining() > 16;
     }
 
 }
