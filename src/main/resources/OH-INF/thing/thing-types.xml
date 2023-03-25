@@ -7,7 +7,7 @@
 	<!-- Sample Thing Type -->
 	<thing-type id="LSWLoggerV5">
 		<label>LSW Logger</label>
-		<description>LSW Logger, supporting loggers based on iGEN V5 protocol (S/N 17xxxxxxxx format)</description>
+		<description>LSW Logger, supported loggers with firmware LSW3_15_FFFF_1.0.57, LSW3_15_FFFF_1.0.65, ME_08_2701_2.06 (S/N formats: 17xxxxxxxx, 21xxxxxxxx)</description>
 
 		<channels>
 			<channel id="online" typeId="online-channel" />
