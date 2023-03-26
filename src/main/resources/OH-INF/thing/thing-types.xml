@@ -113,8 +113,8 @@
 	</thing-type>
 
 	<thing-type id="SN23xLoggerV5">
-		<label>Loggers with SN 23x</label>
-		<description>LSW Logger, supporting loggers based on iGEN V5 protocol (S/N 23xxxxxxxx format)</description>
+		<label>Loggers with SN 23 (beta)</label>
+		<description>LSW Logger, supporting loggers based on iGEN V5 protocol (S/N 23xxxxxxxx format, maybe some of 21xxxxxxxx).</description>
 
 		<channels>
 			<channel id="online" typeId="online-channel" />
