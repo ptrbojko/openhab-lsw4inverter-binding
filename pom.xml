@@ -9,7 +9,7 @@
     <groupId>org.openhab.addons</groupId>
     <artifactId>org.openhab.addons.reactor</artifactId>
     <version>3.3.0</version>
-    <relativePath/>
+    <relativePath />
   </parent>
 
   <groupId>org.openhab.addons.bundles</groupId>
@@ -27,6 +27,13 @@
     <maven.compiler.source>11</maven.compiler.source>
     <basedirRoot>etc</basedirRoot>
   </properties>
+
+  <scm>
+    <connection>scm:git:git@github.com:ptrbojko/openhab-lsw4inverter-binding.git</connection>
+    <developerConnection>scm:git:git@github.com:ptrbojko/openhab-lsw4inverter-binding.git</developerConnection>
+    <url>https://github.com/ptrbojko/openhab-lsw4inverter-binding</url>
+  </scm>
+
 
   <dependencies>
 
@@ -62,7 +69,7 @@
 
   <build>
     <plugins>
-      
+
       <plugin>
         <groupId>org.commonjava.maven.plugins</groupId>
         <artifactId>directory-maven-plugin</artifactId>
@@ -86,9 +93,9 @@
       </plugin>
 
       <plugin>
-				<groupId>biz.aQute.bnd</groupId>
-				<artifactId>bnd-maven-plugin</artifactId>
-			</plugin>
+        <groupId>biz.aQute.bnd</groupId>
+        <artifactId>bnd-maven-plugin</artifactId>
+      </plugin>
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
