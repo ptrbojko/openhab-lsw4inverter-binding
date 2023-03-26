@@ -26,11 +26,12 @@
     <maven.compiler.target>11</maven.compiler.target>
     <maven.compiler.source>11</maven.compiler.source>
     <basedirRoot>etc</basedirRoot>
+    <project.scm.id>github</project.scm.id>
   </properties>
 
   <scm>
-    <connection>scm:git:git@github.com:ptrbojko/openhab-lsw4inverter-binding.git</connection>
-    <developerConnection>scm:git:git@github.com:ptrbojko/openhab-lsw4inverter-binding.git</developerConnection>
+    <connection>scm:git:https://github.com/ptrbojko/openhab-lsw4inverter-binding.git</connection>
+    <developerConnection>scm:git:https://github.com/ptrbojko/openhab-lsw4inverter-binding.git</developerConnection>
     <url>https://github.com/ptrbojko/openhab-lsw4inverter-binding</url>
   </scm>
 
