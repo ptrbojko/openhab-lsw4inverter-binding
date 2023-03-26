@@ -10,10 +10,6 @@ on:
         description: Next development version
         required: true
         type: string
-      relVersion:
-        description: Release version
-        required: true
-        type: string
 
 jobs:
   relesase-start:
@@ -28,4 +24,8 @@ jobs:
         java-version: '11'
         distribution: 'adopt'
         cache: maven
+    - name: JGitFlow Release Start
+      run: mvn -DdevelopmentVersion=$DEV_VERSION -B jgitflow:release-start 
+      env:
+        DEV_VERSION: ${{ inputs.devVersion }}
 

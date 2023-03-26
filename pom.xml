@@ -34,6 +34,13 @@
     <url>https://github.com/ptrbojko/openhab-lsw4inverter-binding</url>
   </scm>
 
+  <distributionManagement>
+    <repository>
+      <id>github</id>
+      <name>GitHub Packages</name>
+      <url>https://maven.pkg.github.com/ptrbojko/openhab-lsw4inverter-binding</url>
+    </repository>
+  </distributionManagement>
 
   <dependencies>
 
