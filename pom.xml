@@ -30,9 +30,9 @@
   </properties>
 
   <scm>
-    <connection>git@github.com:ptrbojko/openhab-lsw4inverter-binding.git</connection>
-    <developerConnection>git@github.com:ptrbojko/openhab-lsw4inverter-binding.git</developerConnection>
-    <url>git@github.com:ptrbojko/openhab-lsw4inverter-binding.git</url>
+    <connection>scm:git:git://github.com:ptrbojko/openhab-lsw4inverter-binding.git</connection>
+    <developerConnection>scm:git:git@github.com:ptrbojko/openhab-lsw4inverter-binding.git</developerConnection>
+    <url>https://github.com/ptrbojko/openhab-lsw4inverter-binding</url>
   </scm>
 
   <distributionManagement>
