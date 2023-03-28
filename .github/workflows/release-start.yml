@@ -25,7 +25,11 @@ jobs:
           java-version: "11"
           distribution: "adopt"
           cache: maven
-      - name: JGitFlow Release Start
+      - name: Configure Git User
+        run: |
+          git config user.email "actions@github.com"
+          git config user.name "GitHub Actions"
+      - name: GitFlow Release Start
         run: mvn -DdevelopmentVersion=$DEV_VERSION -B gitflow:release-start
         env:
           DEV_VERSION: ${{ inputs.devVersion }}
