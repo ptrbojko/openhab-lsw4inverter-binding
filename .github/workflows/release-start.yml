@@ -34,3 +34,4 @@ jobs:
         run: mvn -DdevelopmentVersion=$DEV_VERSION -DpushRemote=true -B gitflow:release-start
         env:
           DEV_VERSION: ${{ inputs.devVersion }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
