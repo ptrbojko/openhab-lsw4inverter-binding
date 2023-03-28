@@ -26,6 +26,6 @@ jobs:
           distribution: "adopt"
           cache: maven
       - name: JGitFlow Release Start
-        run: mvn -DdevelopmentVersion=$DEV_VERSION -B jgitflow:release-start
+        run: mvn -DdevelopmentVersion=$DEV_VERSION -B gitflow:release-start
         env:
           DEV_VERSION: ${{ inputs.devVersion }}

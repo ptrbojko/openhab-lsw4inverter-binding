@@ -117,17 +117,13 @@
       </plugin>
 
       <plugin>
-        <groupId>external.atlassian.jgitflow</groupId>
-        <artifactId>jgitflow-maven-plugin</artifactId>
-        <version>1.0-m5.1</version>
+        <groupId>com.amashchenko.maven.plugin</groupId>
+        <artifactId>gitflow-maven-plugin</artifactId>
+        <version>1.19.0</version>
         <configuration>
-          <autoVersionSubmodules>true</autoVersionSubmodules>
-          <pushFeatures>true</pushFeatures>
-          <pushReleases>true</pushReleases>
-          <pushHotfixes>true</pushHotfixes>
-          <allowSnapshots>true</allowSnapshots>
+            <!-- optional configuration -->
         </configuration>
-      </plugin>
+    </plugin>
 
     </plugins>
   </build>
