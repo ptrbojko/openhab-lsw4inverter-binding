@@ -119,12 +119,12 @@
         <artifactId>gitflow-maven-plugin</artifactId>
         <version>1.19.0</version>
         <configuration>
-            <gitFlowConfig>
-              <commitDevelopmentVersionAtStart>true</commitDevelopmentVersionAtStart>
-              <pushRemote>true</pushRemote>
-            </gitFlowConfig>
+          <commitDevelopmentVersionAtStart>true</commitDevelopmentVersionAtStart>
+          <gitFlowConfig>
+            <pushRemote>true</pushRemote>
+          </gitFlowConfig>
         </configuration>
-    </plugin>
+      </plugin>
 
     </plugins>
   </build>
