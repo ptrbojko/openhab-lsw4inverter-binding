@@ -120,9 +120,7 @@
         <version>1.19.0</version>
         <configuration>
           <commitDevelopmentVersionAtStart>true</commitDevelopmentVersionAtStart>
-          <gitFlowConfig>
-            <pushRemote>true</pushRemote>
-          </gitFlowConfig>
+          <pushRemote>true</pushRemote>
         </configuration>
       </plugin>
 
