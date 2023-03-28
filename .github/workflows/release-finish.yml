@@ -31,7 +31,7 @@ jobs:
           git config user.email "actions@github.com"
           git config user.name "GitHub Actions"
       - name: GitFlow Release Start
-        run: mvn -DdevelopmentVersion=$DEV_VERSION -DpushRemote=true -B gitflow:release-finish
+        run: mvn -DdevelopmentVersion=$DEV_VERSION -B gitflow:release-finish
         env:
           DEV_VERSION: ${{ inputs.devVersion }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
