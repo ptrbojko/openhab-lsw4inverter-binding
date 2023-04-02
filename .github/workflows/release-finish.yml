@@ -37,4 +37,7 @@ jobs:
         id: GetReleasedVersionStep
       - name: Print the version
         run: echo "The version we just got is ${{ steps.GetReleasedVersionStep.outputs.version }}"
+      - name: LS1
+        run: ls && cd target && ls
+
 
