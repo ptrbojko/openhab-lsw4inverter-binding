@@ -40,7 +40,7 @@ jobs:
       - name: GH Release
         uses: softprops/action-gh-release@v0.1.15
         with:
-          files: target/org.openhab.binding.lswlogger-&{{ steps.GetReleasedVersionStep.outputs.version }}.jar
+          files: target/org.openhab.binding.lswlogger-${{ steps.GetReleasedVersionStep.outputs.version }}.jar
           tag_name: ${{ steps.GetReleasedVersionStep.outputs.version }}
 
 
