@@ -37,7 +37,11 @@ jobs:
         id: GetReleasedVersionStep
       - name: Print the version
         run: echo "The version we just got is ${{ steps.GetReleasedVersionStep.outputs.version }}"
-      - name: LS1
-        run: ls && cd target && ls
+      - name: GH Release
+        uses: softprops/action-gh-release@v0.1.15
+        with:
+          files: target/org.openhab.binding.lswlogger-&{{ steps.GetReleasedVersionStep.outputs.version }}.jar
+          tag_name: ${{ steps.GetReleasedVersionStep.outputs.version }}
+
 
 
