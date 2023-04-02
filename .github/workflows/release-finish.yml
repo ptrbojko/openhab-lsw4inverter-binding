@@ -29,4 +29,12 @@ jobs:
         run: mvn -B -DpostReleaseGoals=deploy gitflow:release-finish
         env:
           DEV_VERSION: ${{ inputs.devVersion }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Checkout master
+        run: git checkout master
+      - name: Get Project Version from pom.xml
+        uses: entimaniac/read-pom-version-action@1.0.0
+        id: GetReleasedVersionStep
+      - name: Print the version
+        run: echo "The version we just got is ${{ steps.GetReleasedVersionStep.outputs.version }}"
+
