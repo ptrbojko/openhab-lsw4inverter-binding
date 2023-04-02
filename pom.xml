@@ -14,7 +14,7 @@
 
   <groupId>org.openhab.addons.bundles</groupId>
   <artifactId>org.openhab.binding.lswlogger</artifactId>
-  <version>0.0.6</version>
+  <version>0.0.7</version>
 
   <name>openHAB Add-ons :: Bundles :: LswLogger Binding</name>
 
