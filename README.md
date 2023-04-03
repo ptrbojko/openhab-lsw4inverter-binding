@@ -1,56 +1,43 @@
 # LswLogger Binding
 
-_Give some details about what this binding is meant for - a protocol, system, specific device._
-
-_If possible, provide some resources like pictures, a video, etc. to give an impression of what can be done with this binding. You can place such resources into a `doc` folder next to this README.md._
+This binding lets you connect to LSW logger for Sofar/Omnik/IE for SolarmanPV based on protocol v5 (iGEN tech).
 
 ## Supported Things
 
-_Please describe the different supported things / devices within this section._
-_Which different types are supported, which models were tested etc.?_
-_Note that it is planned to generate some part of this based on the XML files within ```src/main/resources/OH-INF/thing``` of your binding._
+As for now two families of stick loggers are supported.
+
+### LSW Logger
+
+Supports following firmwares and serial numbers families.
+- wifi stick with firmware - *LSW3_15_FFFF_1.0.57*, those have serial number starting with *17xxx*
+- wifi stick with firmware - *LSW3_15_FFFF_1.0.65*, those have serial number starting with *17xxx*
+- eth stick with firmware - *ME_08_2701_2.06*, those have serial number starting with *21xxx*
+
+_Please note - some other sticks may be supported by this thing, though they were not tested._
+
+### SN23xLoggerV5 (beta - testers and feedback needed)
+
+Supporting loggers based on iGEN V5 protocol with serial number 23xxxxxxxx format (maybe some of 21xxxxxxxx would work).
+
+_This things is beta_
 
 ## Discovery
 
-_Describe the available auto-discovery features here. Mention for what it works and what needs to be kept in mind when using it._
-
-## Binding Configuration
-
-_If your binding requires or supports general configuration settings, please create a folder ```cfg``` and place the configuration file ```<bindingId>.cfg``` inside it. In this section, you should link to this file and provide some information about the options. The file could e.g. look like:_
-
-```
-# Configuration for the LswLogger Binding
-#
-# Default secret key for the pairing of the LswLogger Thing.
-# It has to be between 10-40 (alphanumeric) characters.
-# This may be changed by the user for security reasons.
-secret=openHABSecret
-```
-
-_Note that it is planned to generate some part of this based on the information that is available within ```src/main/resources/OH-INF/binding``` of your binding._
-
-_If your binding does not offer any generic configurations, you can remove this section completely._
+Binding does not support discovery.
 
 ## Thing Configuration
 
-_Describe what is needed to manually configure a thing, either through the UI or via a thing-file. This should be mainly about its mandatory and optional configuration parameters. A short example entry for a thing file can help!_
+Each thing must be configured with following properties
 
-_Note that it is planned to generate some part of this based on the XML files within ```src/main/resources/OH-INF/thing``` of your binding._
+| Property       | Value              | Description                                                  |
+|----------------|--------------------|--------------------------------------------------------------|
+| hostname       | IP or hostname     | IP or network resolvable name of your logger stick           |
+| port           | defaults to *8899* | Port for communicating with logger, mostly 8899              |
+| serialNumber   | S/N, number        | Serial number of your stick logger                           |
+| refreshTime    | Period in seconds  | Time between next request for data from logger               |
+| retriesCount   | Count as number    | Reconnecting tries after which logger will be marked offline |
+| maxOfflineTime | Period in minutes  | Max period in minutes afer which logger is assumed to broken |
 
 ## Channels
 
-_Here you should provide information about available channel types, what their meaning is and how they can be used._
-
-_Note that it is planned to generate some part of this based on the XML files within ```src/main/resources/OH-INF/thing``` of your binding._
-
-| channel  | type   | description                  |
-|----------|--------|------------------------------|
-| control  | Switch | This is the control channel  |
-
-## Full Example
-
-_Provide a full usage example based on textual configuration files (*.things, *.items, *.sitemap)._
-
-## Any custom content here!
-
-_Feel free to add additional sections for whatever you think should also be mentioned about your binding!_
+_TBA_
