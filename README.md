@@ -41,3 +41,8 @@ Each thing must be configured with following properties
 ## Channels
 
 _TBA_
+
+# Suppport this project
+
+You can support this project by sponsoring its maintainers:
+[Piotr Bojko](https://github.com/sponsors/ptrbojko?frequency=one-time)
