@@ -13,13 +13,21 @@ Supports following firmwares and serial numbers families.
 - wifi stick with firmware - *LSW3_15_FFFF_1.0.65*, those have serial number starting with *17xxx*
 - eth stick with firmware - *ME_08_2701_2.06*, those have serial number starting with *21xxx*
 
+| Inverter | Stick firmware | Notes |
+|----------|----------------|-------|
+| Sofar Solar | LSW3_15_FFFF_1.0.57 <br/> LSW3_15_FFFF_1.0.65 <br/> ME_08_2701_2.06|  |
+
 _Please note - some other sticks may be supported by this thing, though they were not tested._
 
 ### SN23xLoggerV5 (beta - testers and feedback needed)
 
-Supporting loggers based on iGEN V5 protocol with serial number 23xxxxxxxx format (maybe some of 21xxxxxxxx would work).
+| Inverter | Stick firmware | Notes |
+|----------|----------------|-------|
+| Sofar G3 | | |
+| HYD 5-20KTL-3PH | | |
+| ZCS Azzurro 3-Phase familiy:<br/> - 3PH HYD6000 ZSS | | Note that this won't work if your ZCS inverter is connected via Connext, you have to be using a Wi-Fi or Ethernet Kit such as ZSM-WIFI-USB |
 
-_This things is beta_
+_This thing is beta_
 
 ## Discovery
 

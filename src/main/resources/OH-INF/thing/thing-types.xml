@@ -6,8 +6,8 @@
 
 	<!-- Sample Thing Type -->
 	<thing-type id="LSWLoggerV5">
-		<label>LSW Logger</label>
-		<description>LSW Logger, supported loggers with firmware LSW3_15_FFFF_1.0.57, LSW3_15_FFFF_1.0.65, ME_08_2701_2.06 (S/N formats: 17xxxxxxxx, 21xxxxxxxx)</description>
+		<label>LSW Logger (basic)</label>
+		<description>Supports basic Sofar Solar inverters</description>
 
 		<channels>
 			<channel id="online" typeId="online-channel" />
@@ -113,8 +113,8 @@
 	</thing-type>
 
 	<thing-type id="SN23xLoggerV5">
-		<label>Loggers with SN 23 (beta)</label>
-		<description>LSW Logger, supporting loggers based on iGEN V5 protocol (S/N 23xxxxxxxx format, maybe some of 21xxxxxxxx).</description>
+		<label>Sofar G3</label>
+		<description>Supports Sofar G3, HYD 5-xxKTL-3ph, ZCS Azzurro 3-Phase familiy</description>
 
 		<channels>
 			<channel id="online" typeId="online-channel" />
