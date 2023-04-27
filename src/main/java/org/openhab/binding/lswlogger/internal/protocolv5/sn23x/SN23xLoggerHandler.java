@@ -27,8 +27,6 @@ import org.openhab.binding.lswlogger.internal.protocolv5.states.StateMachineBuil
 import org.openhab.binding.lswlogger.internal.protocolv5.states.UnrecoverableErrorState;
 import org.openhab.binding.lswlogger.internal.protocolv5.states.WaitingToWakeupInverterReconnectingState;
 import org.openhab.core.thing.Thing;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * The {@link SN23xLoggerHandler} is responsible for handling commands, which
@@ -39,8 +37,6 @@ import org.slf4j.LoggerFactory;
  */
 
 public class SN23xLoggerHandler extends AbstractLoggerHandler {
-
-    private static final Logger logger = LoggerFactory.getLogger(SN23xLoggerHandler.class);
 
     private static final int SYSTEM_INFO_FROM_REG = 0x0404;
     private static final int SYSTEM_INFO_TO_REG = 0x042E;
