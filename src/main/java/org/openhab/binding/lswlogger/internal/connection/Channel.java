@@ -128,7 +128,6 @@ public class Channel {
     }
 
     public void close() throws IOException {
-        chnl.
         chnl.close();
         throwable = null;
     }
