@@ -43,6 +43,13 @@ public interface LswLoggerBindingConstants {
     interface Common {
 
         String onlineChannel = "online";
+
+    }
+
+    interface DebugLoggerV5 {
+        ThingTypeUID THING_TYPE_ID = new ThingTypeUID(BINDING_ID, "DebugLoggerV5");
+        String operatingStateChannel = "operatingState";
+        String lastResponseChannel = "lastResponse";
     }
 
     interface LSWLoggerV5 {

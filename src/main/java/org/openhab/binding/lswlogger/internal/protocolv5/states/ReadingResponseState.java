@@ -28,8 +28,8 @@ import org.openhab.core.thing.ThingStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ReadingResponseState<C extends Context<LoggerThingConfiguration>>
-        implements ProtocolState<LoggerThingConfiguration, C> {
+public class ReadingResponseState<L extends LoggerThingConfiguration, C extends Context<L>>
+        implements ProtocolState<L, C> {
 
     private static final Logger logger = LoggerFactory.getLogger(ReadingResponseState.class);
     private static final int WAIT_FOR_NEXT_READ = 15;

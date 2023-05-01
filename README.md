@@ -15,7 +15,7 @@ Supports following firmwares and serial numbers families.
 
 | Inverter | Stick firmware | Notes |
 |----------|----------------|-------|
-| Sofar Solar | LSW3_15_FFFF_1.0.57 <br/> LSW3_15_FFFF_1.0.65 <br/> ME_08_2701_2.06|  |
+| Sofar Solar: SF4ES005 | LSW3_15_FFFF_1.0.57 <br/> LSW3_15_FFFF_1.0.65 <br/> ME_08_2701_2.06|  |
 
 _Please note - some other sticks may be supported by this thing, though they were not tested._
 
@@ -29,6 +29,12 @@ _Please note - some other sticks may be supported by this thing, though they wer
 
 _This thing is beta_
 
+### Debug logger (beta)
+
+Supports basically any solaman like logger but it is not designed to expose any particular data. Instead it can be used to tinker aroung modbus registers exposed by an inverter.
+
+During setup of this thing you enter serial number of your logger, ip and port along with first and last modbus registers you want to be requested. Then the raw response from the inverter/logger is presented as _lastResponse_ channel. 
+
 ## Discovery
 
 Binding does not support discovery.
@@ -37,14 +43,16 @@ Binding does not support discovery.
 
 Each thing must be configured with following properties
 
-| Property       | Value              | Description                                                  |
-|----------------|--------------------|--------------------------------------------------------------|
-| hostname       | IP or hostname     | IP or network resolvable name of your logger stick           |
-| port           | defaults to *8899* | Port for communicating with logger, mostly 8899              |
-| serialNumber   | S/N, number        | Serial number of your stick logger                           |
-| refreshTime    | Period in seconds  | Time between next request for data from logger               |
-| retriesCount   | Count as number    | Reconnecting tries after which logger will be marked offline |
-| maxOfflineTime | Period in minutes  | Max period in minutes afer which logger is assumed to broken |
+| Property       | Value                 | Description                                                  |
+|----------------|-----------------------|--------------------------------------------------------------|
+| hostname       | IP or hostname        | IP or network resolvable name of your logger stick           |
+| port           | defaults to *8899*    | Port for communicating with logger, mostly 8899              |
+| serialNumber   | S/N, number           | Serial number of your stick logger                           |
+| refreshTime    | Period in seconds     | Time between next request for data from logger               |
+| retriesCount   | Count as number       | Reconnecting tries after which logger will be marked offline |
+| maxOfflineTime | Period in minutes     | Max period in minutes afer which logger is assumed to broken |
+| startRegister  | First modbus register | Only for debug thing. Example value _0x0000_                 |
+| endRegister    | Last modbus register  | Only for debug thing. Example value _0x0027_                 |
 
 ## Channels
 

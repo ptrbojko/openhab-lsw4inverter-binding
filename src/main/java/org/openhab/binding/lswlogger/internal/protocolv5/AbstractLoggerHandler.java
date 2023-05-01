@@ -56,7 +56,7 @@ public abstract class AbstractLoggerHandler extends BaseThingHandler {
         // no op
     }
 
-    public static class AbstractContext implements Context<LoggerThingConfiguration> {
+    public abstract static class AbstractContext<C extends LoggerThingConfiguration> implements Context<C> {
 
         private final AbstractLoggerHandler handler;
 
@@ -93,9 +93,12 @@ public abstract class AbstractLoggerHandler extends BaseThingHandler {
         }
 
         @Override
-        public LoggerThingConfiguration config() {
-            return handler.getConfigAs(LoggerThingConfiguration.class);
+        public C config() {
+            return handler.getConfigAs(getConfigClass());
         }
+
+        @NonNull
+        protected abstract Class<C> getConfigClass();
 
     }
 

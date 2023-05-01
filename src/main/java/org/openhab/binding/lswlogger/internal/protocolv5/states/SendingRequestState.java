@@ -12,20 +12,13 @@
  */
 package org.openhab.binding.lswlogger.internal.protocolv5.states;
 
-import java.nio.ByteBuffer;
-
 import org.eclipse.jdt.annotation.NonNull;
 import org.openhab.binding.lswlogger.internal.LoggerThingConfiguration;
 import org.openhab.binding.lswlogger.internal.connection.Context;
 import org.openhab.binding.lswlogger.internal.connection.StateMachineSwitchable;
-import org.openhab.binding.lswlogger.internal.protocolv5.RequestFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class SendingRequestState<C extends Context<LoggerThingConfiguration>>
-        implements ProtocolState<LoggerThingConfiguration, C> {
-
-    private static final Logger logger = LoggerFactory.getLogger(SendingRequestState.class);
+        extends AbstractSendingRequestState<LoggerThingConfiguration, C> {
 
     private final int fromRegister;
     private final int toRegister;
@@ -36,15 +29,13 @@ public class SendingRequestState<C extends Context<LoggerThingConfiguration>>
     }
 
     @Override
-    public void handle(@NonNull StateMachineSwitchable sm, @NonNull C context) {
-        ByteBuffer request = RequestFactory
-                .create(context.config().getSerialNumber(), fromRegister, toRegister)
-                .flip()
-                .clear();
-        context.channel().write(request, sm::switchToNextState, t -> {
-            logger.error("Failed to write to channel", t);
-            sm.switchToExceptionState();
-        });
+    protected int getFromRegister(@NonNull StateMachineSwitchable sm, @NonNull C context) {
+        return fromRegister;
+    }
+
+    @Override
+    protected int getToRegister(@NonNull StateMachineSwitchable sm, @NonNull C context) {
+        return toRegister;
     }
 
 }

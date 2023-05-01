@@ -71,7 +71,7 @@ public class Channel {
                 buffer.flip();
                 try {
                     messages.put(buffer);
-                    if (chnl.isOpen()) {
+                    if (chnl.isOpen() || bytesRead >= 0d) {
                         listen();
                     }
                 } catch (InterruptedException e) {
@@ -128,6 +128,7 @@ public class Channel {
     }
 
     public void close() throws IOException {
+        chnl.
         chnl.close();
         throwable = null;
     }

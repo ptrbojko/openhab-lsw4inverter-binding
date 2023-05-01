@@ -1,4 +1,4 @@
-package org.openhab.binding.lswlogger.internal.protocolv5.sn23x;
+package org.openhab.binding.lswlogger.internal.protocolv5.thing.sn23x;
 
 import static org.openhab.binding.lswlogger.internal.LswLoggerBindingConstants.SN23xV5.OPERATING_STATES;
 

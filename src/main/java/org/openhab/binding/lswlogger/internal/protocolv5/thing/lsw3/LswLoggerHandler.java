@@ -10,7 +10,7 @@
  * <p>
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.openhab.binding.lswlogger.internal.protocolv5.lsw3;
+package org.openhab.binding.lswlogger.internal.protocolv5.thing.lsw3;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.openhab.binding.lswlogger.internal.LoggerThingConfiguration;
@@ -57,14 +57,14 @@ public class LswLoggerHandler extends AbstractLoggerHandler {
             @NonNull LswLoggerHandlerContext lswLoggerHandlerContext,
             @NonNull LoggerThingConfiguration configAs) {
         ProtocolState<LoggerThingConfiguration, LswLoggerHandlerContext> initial = new ConnectingState<>();
-        UnrecoverableErrorState<LswLoggerHandlerContext> unrecoverableErrorState = new UnrecoverableErrorState<>();
+        UnrecoverableErrorState<LoggerThingConfiguration, LswLoggerHandlerContext> unrecoverableErrorState = new UnrecoverableErrorState<>();
         SendingRequestState<LswLoggerHandlerContext> sendingRequestState = new SendingRequestState<>(
                 FROM_REGISTER,
                 TO_REGISTER);
-        ReadingResponseState<LswLoggerHandlerContext> readingResponseState = new ReadingResponseState<>(
+        ReadingResponseState<LoggerThingConfiguration, LswLoggerHandlerContext> readingResponseState = new ReadingResponseState<>(
                 createResponseDispatcher());
-        ReconnectingState<LswLoggerHandlerContext> reconnectingState = new ReconnectingState<>();
-        WaitingToWakeupInverterReconnectingState<LswLoggerHandlerContext> waitingToWakeupInverterReconnectingState = new WaitingToWakeupInverterReconnectingState<>();
+        ReconnectingState<LoggerThingConfiguration, LswLoggerHandlerContext> reconnectingState = new ReconnectingState<>();
+        WaitingToWakeupInverterReconnectingState<LoggerThingConfiguration, LswLoggerHandlerContext> waitingToWakeupInverterReconnectingState = new WaitingToWakeupInverterReconnectingState<>();
         StateMachineBuilder<LoggerThingConfiguration, LswLoggerHandlerContext> builder = new StateMachineBuilder<>();
         builder
                 .addContext(lswLoggerHandlerContext)
@@ -101,7 +101,7 @@ public class LswLoggerHandler extends AbstractLoggerHandler {
                 new UnknownResponseHandler());
     }
 
-    private class LswLoggerHandlerContext extends AbstractLoggerHandler.AbstractContext {
+    private class LswLoggerHandlerContext extends AbstractLoggerHandler.AbstractContext<LoggerThingConfiguration> {
 
         public LswLoggerHandlerContext() {
             super(LswLoggerHandler.this);
@@ -121,6 +121,11 @@ public class LswLoggerHandler extends AbstractLoggerHandler {
             updateState(LSWLoggerV5.Phase1CurrentChannel, InitialDataValues.ZERO_AMPERES);
             updateState(LSWLoggerV5.Phase2CurrentChannel, InitialDataValues.ZERO_AMPERES);
             updateState(LSWLoggerV5.Phase3CurrentChannel, InitialDataValues.ZERO_AMPERES);
+        }
+
+        @Override
+        protected @NonNull Class<LoggerThingConfiguration> getConfigClass() {
+            return LoggerThingConfiguration.class;
         }
     }
 }
