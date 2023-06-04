@@ -43,7 +43,7 @@ public class From0404To042eDataResponseHandler extends AbstractDataResponseHandl
 
     @Override
     protected boolean accepts(ByteBuffer buffer) {
-        return buffer.remaining() == MESSAGE_LENGTH;
+        return buffer.remaining() >= MESSAGE_LENGTH;
     }
 
 }
