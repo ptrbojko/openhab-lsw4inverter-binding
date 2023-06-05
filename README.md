@@ -28,7 +28,16 @@ _This thing is beta_
 
 ### Debug logger (beta)
 
-Supports basically any solaman like logger but it is not designed to expose any particular data. Instead it can be used to tinker around modbus registers exposed by an inverter.
+Supports basically any solarman like logger but it is not designed to expose any particular data. Instead it can be used to tinker around modbus registers exposed by an inverter.
+
+In case of problem with other thing types from the binding, like not drawing appropriate data from your logger/inverter - you may find this thing type useful:
+
+1. Configure this thingg.
+2. For each pair of register you find should work with your inverter make some tests and note the results:
+    - Note values from *lastReponse* channel
+    - Note any logs you catch from the binding
+3. File an [issue on github](https://github.com/ptrbojko/openhab-lsw4inverter-binding/issues) with noted data, and information about your logger (like SN format, firmware version and type) and inverter (name, model, firmware versionm etc).
+4. Wait for my help :)
 
 During setup of this thing you enter serial number of your logger, ip and port along with first and last modbus registers you want to be requested. Then the raw response from the inverter/logger is presented as _lastResponse_ channel. 
 
