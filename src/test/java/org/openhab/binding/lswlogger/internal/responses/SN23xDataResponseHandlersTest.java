@@ -1,4 +1,4 @@
-package org.openhab.binding.lswlogger.internal.sn23x;
+package org.openhab.binding.lswlogger.internal.responses;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -8,8 +8,8 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 import org.openhab.binding.lswlogger.internal.ByteUtils;
-import org.openhab.binding.lswlogger.internal.protocolv5.sn23x.From0404To042eDataResponseHandler;
-import org.openhab.binding.lswlogger.internal.protocolv5.sn23x.From0480To04afDataResponseHandler;
+import org.openhab.binding.lswlogger.internal.protocolv5.thing.sn23x.From0404To042eDataResponseHandler;
+import org.openhab.binding.lswlogger.internal.protocolv5.thing.sn23x.From0480To04afDataResponseHandler;
 import org.openhab.core.library.types.QuantityType;
 import org.openhab.core.library.unit.Units;
 import org.openhab.core.types.State;

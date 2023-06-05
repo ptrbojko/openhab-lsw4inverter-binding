@@ -23,8 +23,8 @@ import org.openhab.binding.lswlogger.internal.connection.StateMachineSwitchable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ReconnectingState<C extends Context<LoggerThingConfiguration>>
-        implements ProtocolState<LoggerThingConfiguration, C> {
+public class ReconnectingState<L extends LoggerThingConfiguration, C extends Context<L>>
+        implements ProtocolState<L, C> {
 
     private static final Logger logger = LoggerFactory.getLogger(ReconnectingState.class);
     public static final int WAIT_BEFORE_RECONNECT_SECONDS = 20;

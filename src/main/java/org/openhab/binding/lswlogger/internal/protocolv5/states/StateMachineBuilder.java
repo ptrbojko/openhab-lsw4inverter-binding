@@ -6,8 +6,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Consumer;
 
 import org.eclipse.jdt.annotation.NonNull;
-import org.openhab.binding.lswlogger.internal.LoggerThingConfiguration;
 import org.openhab.binding.lswlogger.internal.connection.Context;
+import org.openhab.binding.lswlogger.internal.LoggerThingConfiguration;
 
 public class StateMachineBuilder<T, C extends Context<T>> {
 

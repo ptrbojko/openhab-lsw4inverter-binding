@@ -1,4 +1,4 @@
-package org.openhab.binding.lswlogger.internal.protocolv5.sn23x;
+package org.openhab.binding.lswlogger.internal.protocolv5.thing.sn23x;
 
 import static org.openhab.binding.lswlogger.internal.LswLoggerBindingConstants.SN23xV5.OPERATING_STATES;
 
@@ -43,7 +43,7 @@ public class From0404To042eDataResponseHandler extends AbstractDataResponseHandl
 
     @Override
     protected boolean accepts(ByteBuffer buffer) {
-        return buffer.remaining() == MESSAGE_LENGTH;
+        return buffer.remaining() >= MESSAGE_LENGTH;
     }
 
 }

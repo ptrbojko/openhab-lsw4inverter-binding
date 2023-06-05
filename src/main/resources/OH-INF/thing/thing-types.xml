@@ -4,7 +4,59 @@
 	xmlns:thing="https://openhab.org/schemas/thing-description/v1.0.0"
 	xsi:schemaLocation="https://openhab.org/schemas/thing-description/v1.0.0 https://openhab.org/schemas/thing-description-1.0.0.xsd">
 
-	<!-- Sample Thing Type -->
+	<thing-type id="DebugLoggerV5">
+		<label>Debug thing</label>
+		<description>This thing allows sending and receiving raw comm from your inverters logger.</description>
+
+		<channels>
+			<channel id="online" typeId="online-channel" />
+			<channel id="lastResponse" typeId="debug-response" />
+		</channels>
+		<config-description>
+			<parameter name="hostname" type="text" required="true">
+				<context>network-address</context>
+				<label>Logger Hostname/IP</label>
+				<description>Hostname or IP address of the device.</description>
+			</parameter>
+			<parameter name="port" type="integer" min="1" required="true">
+				<label>Port</label>
+				<description>TCP port of the device.</description>
+				<default>8899</default>
+			</parameter>
+			<parameter name="serialNumber" type="integer" required="true">
+				<context></context>
+				<label>Logger serial number</label>
+				<description>Logger serial number, those with format 17xxxx are confirmed to be supported.</description>
+			</parameter>
+			<parameter name="startRegister" type="text">
+				<label>First register</label>
+				<description>First register to query in request</description>
+				<default>0x000</default>
+			</parameter>
+			<parameter name="endRegister" type="text">
+				<label>Last register</label>
+				<description>Last register to query in request</description>
+				<default>0x020</default>
+			</parameter>
+			<parameter name="refreshTime" type="integer" required="true">
+				<label>Refresh time</label>
+				<description>Interval the device is polled in sec.</description>
+				<default>120</default>
+			</parameter>
+			<parameter name="retriesCount" type="integer">
+				<label>Number of retries</label>
+				<description>Number of connecting retries before giving up and assuming that logger is offline</description>
+				<default>10</default>
+			</parameter>
+			<parameter name="maxOfflineTime" type="integer">
+				<label>maxOfflineTime</label>
+				<description>Maximum time (in minutes) in which logger is assumed to be offline</description>
+				<default>2160</default>
+			</parameter>
+
+		</config-description>
+	</thing-type>
+
 	<thing-type id="LSWLoggerV5">
 		<label>LSW Logger (basic)</label>
 		<description>Supports basic Sofar Solar inverters</description>
@@ -275,6 +327,13 @@
 				<option value="Permanent">Permanent</option>
 			</options>
 		</state>
+	</channel-type>
+
+	<channel-type id="debug-response">
+		<item-type>String</item-type>
+		<label>Debug response</label>
+		<description>Debug response</description>
+		<state readOnly="true" />
 	</channel-type>
 
 	<channel-type id="fault-channel">
