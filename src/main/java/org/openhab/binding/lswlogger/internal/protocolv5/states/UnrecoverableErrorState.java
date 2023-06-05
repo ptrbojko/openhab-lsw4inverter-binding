@@ -19,8 +19,8 @@ import org.openhab.binding.lswlogger.internal.connection.StateMachineSwitchable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class UnrecoverableErrorState<C extends Context<LoggerThingConfiguration>>
-        implements ProtocolState<LoggerThingConfiguration, C> {
+public class UnrecoverableErrorState<L extends LoggerThingConfiguration, C extends Context<L>>
+        implements ProtocolState<L, C> {
 
     private static final Logger logger = LoggerFactory.getLogger(UnrecoverableErrorState.class);
 

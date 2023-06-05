@@ -86,4 +86,10 @@ public class ExtractingUtils {
             return StringType.valueOf(Charset.forName("IBM437").decode(ByteBuffer.wrap(bytes)).toString());
         };
     }
+
+    public static Function<ByteBuffer,State> bytesToString() {
+        return buffer -> {
+            return StringType.valueOf(ByteUtils.toHex(buffer));
+        };
+    }
 }

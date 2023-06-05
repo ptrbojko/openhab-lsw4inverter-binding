@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.openhab.binding.lswlogger.internal.protocolv5.lsw3;
+package org.openhab.binding.lswlogger.internal.protocolv5.thing.lsw3;
 
 import static org.openhab.binding.lswlogger.internal.LswLoggerBindingConstants.LSWLoggerV5.Phase1CurrentChannel;
 import static org.openhab.binding.lswlogger.internal.LswLoggerBindingConstants.LSWLoggerV5.Phase1VoltageChannel;

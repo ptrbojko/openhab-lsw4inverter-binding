@@ -1,4 +1,4 @@
-package org.openhab.binding.lswlogger.internal.protocolv5.sn23x;
+package org.openhab.binding.lswlogger.internal.protocolv5.thing.sn23x;
 
 import java.nio.ByteBuffer;
 
@@ -79,7 +79,7 @@ public class From0480To04afDataResponseHandler extends AbstractDataResponseHandl
 
     @Override
     protected boolean accepts(ByteBuffer buffer) {
-        return MESSAGE_LENGTH == buffer.remaining();
+        return MESSAGE_LENGTH <= buffer.remaining();
     }
 
 }

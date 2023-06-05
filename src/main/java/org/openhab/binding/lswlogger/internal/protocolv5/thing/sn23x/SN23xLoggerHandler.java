@@ -10,7 +10,7 @@
  * <p>
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.openhab.binding.lswlogger.internal.protocolv5.sn23x;
+package org.openhab.binding.lswlogger.internal.protocolv5.thing.sn23x;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.openhab.binding.lswlogger.internal.LoggerThingConfiguration;
@@ -27,8 +27,6 @@ import org.openhab.binding.lswlogger.internal.protocolv5.states.StateMachineBuil
 import org.openhab.binding.lswlogger.internal.protocolv5.states.UnrecoverableErrorState;
 import org.openhab.binding.lswlogger.internal.protocolv5.states.WaitingToWakeupInverterReconnectingState;
 import org.openhab.core.thing.Thing;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * The {@link SN23xLoggerHandler} is responsible for handling commands, which
@@ -37,10 +35,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Piotr Bojko - Initial contribution
  */
-
 public class SN23xLoggerHandler extends AbstractLoggerHandler {
-
-    private static final Logger logger = LoggerFactory.getLogger(SN23xLoggerHandler.class);
 
     private static final int SYSTEM_INFO_FROM_REG = 0x0404;
     private static final int SYSTEM_INFO_TO_REG = 0x042E;
@@ -65,24 +60,24 @@ public class SN23xLoggerHandler extends AbstractLoggerHandler {
             @NonNull SN23xLoggerHandlerContext lswLoggerHandlerContext,
             @NonNull LoggerThingConfiguration configAs) {
         ProtocolState<LoggerThingConfiguration, SN23xLoggerHandlerContext> initial = new ConnectingState<>();
-        UnrecoverableErrorState<SN23xLoggerHandlerContext> unrecoverableErrorState = new UnrecoverableErrorState<>();
+        UnrecoverableErrorState<LoggerThingConfiguration, SN23xLoggerHandlerContext> unrecoverableErrorState = new UnrecoverableErrorState<>();
         SendingRequestState<SN23xLoggerHandlerContext> sendingSystemInfoRequestState = new SendingRequestState<>(
                 SYSTEM_INFO_FROM_REG,
                 SYSTEM_INFO_TO_REG);
-        ReadingResponseState<SN23xLoggerHandlerContext> readingSystemInfoState = new ReadingResponseState<>(
+        ReadingResponseState<LoggerThingConfiguration, SN23xLoggerHandlerContext> readingSystemInfoState = new ReadingResponseState<>(
                 createResponseDispatcherForSystemInfo());
         SendingRequestState<SN23xLoggerHandlerContext> sendingGridInfoRequestState = new SendingRequestState<>(
                 GRID_INFO_FROM_REG,
                 GRID_INFO_TO_REG);
-        ReadingResponseState<SN23xLoggerHandlerContext> readingGridInfoState = new ReadingResponseState<>(
+        ReadingResponseState<LoggerThingConfiguration, SN23xLoggerHandlerContext> readingGridInfoState = new ReadingResponseState<>(
                 createResponseDispatcherForGridInfo());
         SendingRequestState<SN23xLoggerHandlerContext> sendingEnergyTotalsRequestState = new SendingRequestState<>(
                 ENERGY_TOTALS_FROM_REG,
                 ENERGY_TOTALS_TO_REG);
-        ReadingResponseState<SN23xLoggerHandlerContext> readingEnergyTotalsState = new ReadingResponseState<>(
+        ReadingResponseState<LoggerThingConfiguration, SN23xLoggerHandlerContext> readingEnergyTotalsState = new ReadingResponseState<>(
                 createResponseDispatcherForEnergyTotal());
-        ReconnectingState<SN23xLoggerHandlerContext> reconnectingState = new ReconnectingState<>();
-        WaitingToWakeupInverterReconnectingState<SN23xLoggerHandlerContext> waitingToWakeupInverterReconnectingState = new WaitingToWakeupInverterReconnectingState<>();
+        ReconnectingState<LoggerThingConfiguration, SN23xLoggerHandlerContext> reconnectingState = new ReconnectingState<>();
+        WaitingToWakeupInverterReconnectingState<LoggerThingConfiguration, SN23xLoggerHandlerContext> waitingToWakeupInverterReconnectingState = new WaitingToWakeupInverterReconnectingState<>();
         StateMachineBuilder<LoggerThingConfiguration, SN23xLoggerHandlerContext> builder = new StateMachineBuilder<>();
         builder
                 .addContext(lswLoggerHandlerContext)
@@ -142,7 +137,7 @@ public class SN23xLoggerHandler extends AbstractLoggerHandler {
                 new UnknownResponseHandler());
     }
 
-    private class SN23xLoggerHandlerContext extends AbstractLoggerHandler.AbstractContext {
+    private class SN23xLoggerHandlerContext extends AbstractLoggerHandler.AbstractContext<LoggerThingConfiguration> {
 
         public SN23xLoggerHandlerContext() {
             super(SN23xLoggerHandler.this);
@@ -151,6 +146,11 @@ public class SN23xLoggerHandler extends AbstractLoggerHandler {
         @Override
         public void notifyLoggerIsOffline() {
             super.notifyLoggerIsOffline();
+        }
+
+        @Override
+        protected @NonNull Class<LoggerThingConfiguration> getConfigClass() {
+            return LoggerThingConfiguration.class;
         }
     }
 }
