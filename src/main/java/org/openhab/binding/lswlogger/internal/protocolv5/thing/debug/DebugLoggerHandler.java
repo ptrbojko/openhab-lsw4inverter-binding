@@ -42,6 +42,10 @@ public class DebugLoggerHandler extends AbstractLoggerHandler {
         super(thing);
     }
 
+     @Override
+    protected void preInit() {
+    }
+
     @Override
     protected StateMachine<?, ?> createStateMachine() {
         return createStateMachine(

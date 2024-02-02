@@ -20,34 +20,26 @@ import java.util.function.Function;
 
 import org.openhab.core.types.State;
 
-public class ExtractorsBuilder {
+public class SequenceExtractorsBuilder {
 
     private final ChannelStateUpdate stateUpdate;
     private final List<Consumer<ByteBuffer>> extractors = new ArrayList<>();
 
-    public ExtractorsBuilder(ChannelStateUpdate stateUpdate) {
+    public SequenceExtractorsBuilder(ChannelStateUpdate stateUpdate) {
         this.stateUpdate = stateUpdate;
     }
 
-    public ExtractorsBuilder add(String channelName, Function<ByteBuffer, State> extractor) {
+    public SequenceExtractorsBuilder add(String channelName, Function<ByteBuffer, State> extractor) {
         extractors.add(buffer -> stateUpdate.apply(channelName, extractor.apply(buffer)));
         return this;
     }
 
-    public ExtractorsBuilder addBytesEater(int count) {
+    public SequenceExtractorsBuilder addBytesEater(int count) {
         extractors.add(buffer -> buffer.position(count + buffer.position()));
         return this;
     }
 
-    public List<Consumer<ByteBuffer>> build() {
-        return extractors;
-    }
-
-    public interface ChannelStateUpdate {
-        void apply(String uuid, State state);
-    }
-
-    public ExtractorsBuilder add(String channelName, Object extractor) {
-        return null;
+    public Consumer<ByteBuffer> build() {
+        return buffer -> extractors.forEach(e -> e.accept(buffer));
     }
 }

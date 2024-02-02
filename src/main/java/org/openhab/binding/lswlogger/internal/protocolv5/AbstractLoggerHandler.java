@@ -25,11 +25,14 @@ public abstract class AbstractLoggerHandler extends BaseThingHandler {
 
     @Override
     public final void initialize() {
+        preInit();
         updateStatus(ThingStatus.UNKNOWN);
         disconnectWhenNeeded();
         stateMachine = createStateMachine();
         scheduler.execute(stateMachine::run);
     }
+
+    protected abstract void preInit();
 
     protected abstract StateMachine<?, ?> createStateMachine();
 

@@ -14,7 +14,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.openhab.binding.lswlogger.internal.ByteUtils;
+import org.openhab.binding.lswlogger.internal.bytebuffer.ByteUtils;
 import org.openhab.binding.lswlogger.internal.connection.Channel;
 import org.openhab.binding.lswlogger.internal.connection.Context;
 import org.openhab.binding.lswlogger.internal.connection.StateMachineSwitchable;

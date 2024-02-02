@@ -9,7 +9,6 @@
     <groupId>org.openhab.addons</groupId>
     <artifactId>org.openhab.addons.reactor</artifactId>
     <version>3.3.0</version>
-    <relativePath />
   </parent>
 
   <groupId>org.openhab.addons.bundles</groupId>

@@ -14,7 +14,7 @@ package org.openhab.binding.lswlogger.internal.protocolv5;
 
 import java.nio.ByteBuffer;
 
-import org.openhab.binding.lswlogger.internal.ByteUtils;
+import org.openhab.binding.lswlogger.internal.bytebuffer.ByteUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

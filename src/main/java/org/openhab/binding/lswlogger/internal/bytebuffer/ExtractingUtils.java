@@ -10,7 +10,7 @@
  * <p>
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.openhab.binding.lswlogger.internal;
+package org.openhab.binding.lswlogger.internal.bytebuffer;
 
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;
@@ -31,6 +31,10 @@ public class ExtractingUtils {
         return new QuantityType<>(buffer.getShort(), SIUnits.CELSIUS);
     }
 
+    public static QuantityType<Temperature> shortToHundrethsAsTemperature(ByteBuffer buffer) {
+        return new QuantityType<>(BigDecimal.valueOf(buffer.getShort() / 100f), SIUnits.CELSIUS);
+    }
+
     public static State shortAsMinute(ByteBuffer buffer) {
         return new QuantityType<>(buffer.getShort(), Units.MINUTE);
     }
@@ -43,12 +47,24 @@ public class ExtractingUtils {
         return new QuantityType<>(buffer.getInt(), Units.KILOWATT_HOUR);
     }
 
+    public static State invertedIntMiltipledBy100ToWattHour(ByteBuffer buffer) {
+        return new QuantityType<>(reverseShorts(buffer.getInt()) *100, Units.WATT_HOUR);
+    }
+
+    public static State intToTenthsAsWatt(ByteBuffer buffer) {
+        return new QuantityType<>(BigDecimal.valueOf(buffer.getShort() / 10f), Units.WATT);
+    }
+
     public static StringType extractShortToToStringType(ByteBuffer buffer, String[] states) {
         return StringType.valueOf(states[buffer.getShort()]);
     }
 
     public static State shortToHundrethsAsKiloWattHour(ByteBuffer buffer) {
-        return new QuantityType<>(buffer.getShort() * 10f, Units.WATT_HOUR);
+        return new QuantityType<>(buffer.getShort() * 100f, Units.WATT_HOUR);
+    }
+
+    public static State shortToTenthsAsKiloWattHour(ByteBuffer buffer) {
+        return new QuantityType<>(buffer.getShort() * 100f, Units.WATT_HOUR);
     }
 
     public static State shortToHundrethsAsHz(ByteBuffer buffer) {
@@ -57,6 +73,10 @@ public class ExtractingUtils {
 
     public static State shortMultiple10AsWatts(ByteBuffer buffer) {
         return new QuantityType<>(buffer.getShort() * 10f, Units.WATT);
+    }
+
+    public static State shortAsWatts(ByteBuffer buffer) {
+        return new QuantityType<>(BigDecimal.valueOf(buffer.getShort() / 10f), Units.WATT);
     }
 
     public static State shortMultiple10AsVars(ByteBuffer buffer) {
@@ -87,9 +107,21 @@ public class ExtractingUtils {
         };
     }
 
-    public static Function<ByteBuffer,State> bytesToString() {
+    public static Function<ByteBuffer, State> bytesToHex() {
         return buffer -> {
             return StringType.valueOf(ByteUtils.toHex(buffer));
+        };
+    }
+
+    private static int reverseShorts(int i) {
+        return (i << 16) | ((i & 0xffff0000) >> 16);
+    }
+
+    public static Function<ByteBuffer, State> bytesToHex(int count) {
+        return buffer -> {
+            byte[] bytes = new byte[count];
+            buffer.get(bytes);
+            return StringType.valueOf(ByteUtils.toHex(ByteBuffer.wrap(bytes)));
         };
     }
 }
