@@ -15,20 +15,30 @@ package org.openhab.binding.lswlogger.internal.protocolv5.thing.debug;
 import static org.openhab.binding.lswlogger.internal.LswLoggerBindingConstants.DebugLoggerV5.lastResponseChannel;
 
 import java.nio.ByteBuffer;
+import java.util.function.Consumer;
 
-import org.openhab.binding.lswlogger.internal.ExtractingUtils;
+import org.openhab.binding.lswlogger.internal.bytebuffer.ExtractingUtils;
 import org.openhab.binding.lswlogger.internal.protocolv5.AbstractDataResponseHandler;
-import org.openhab.binding.lswlogger.internal.protocolv5.ExtractorsBuilder;
+import org.openhab.binding.lswlogger.internal.protocolv5.ChannelStateUpdate;
+import org.openhab.binding.lswlogger.internal.protocolv5.SequenceExtractorsBuilder;
 
 public class DebugDataResponseHandler extends AbstractDataResponseHandler {
 
-    public DebugDataResponseHandler(ExtractorsBuilder.ChannelStateUpdate stateUpdate) {
-        super(new ExtractorsBuilder(stateUpdate)
-                .add(lastResponseChannel, ExtractingUtils.bytesToString()));
+    private Consumer<ByteBuffer> consumer;
+
+    public DebugDataResponseHandler(ChannelStateUpdate stateUpdate) {
+        consumer = new SequenceExtractorsBuilder(stateUpdate)
+                .add(lastResponseChannel, ExtractingUtils.bytesToHex()).build();
     }
 
     @Override
     protected boolean accepts(ByteBuffer buffer) {
         return true;
+    }
+
+    @Override
+    protected void accept(ByteBuffer byteBuffer) {
+        consumer.accept(byteBuffer);
+        ;
     }
 }

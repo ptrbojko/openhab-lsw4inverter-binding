@@ -2,7 +2,6 @@ package org.openhab.binding.lswlogger.internal.protocolv5.states;
 
 import java.nio.ByteBuffer;
 
-import org.eclipse.jdt.annotation.NonNull;
 import org.openhab.binding.lswlogger.internal.LoggerThingConfiguration;
 import org.openhab.binding.lswlogger.internal.connection.Context;
 import org.openhab.binding.lswlogger.internal.connection.StateMachineSwitchable;
@@ -16,7 +15,7 @@ public abstract class AbstractSendingRequestState<LC extends LoggerThingConfigur
     private static final Logger logger = LoggerFactory.getLogger(AbstractSendingRequestState.class);
 
     @Override
-    public final void handle(@NonNull StateMachineSwitchable sm, @NonNull C context) {
+    public final void handle(StateMachineSwitchable sm, C context) {
         ByteBuffer request = RequestFactory
                 .create(context.config().getSerialNumber(), getFromRegister(sm, context), getToRegister(sm, context))
                 .flip()
@@ -27,7 +26,7 @@ public abstract class AbstractSendingRequestState<LC extends LoggerThingConfigur
         });
     }
 
-    protected abstract int getFromRegister(@NonNull StateMachineSwitchable sm, @NonNull C context);
+    protected abstract int getFromRegister(StateMachineSwitchable sm, C context);
 
-    protected abstract int getToRegister(@NonNull StateMachineSwitchable sm, @NonNull C context);
+    protected abstract int getToRegister(StateMachineSwitchable sm, C context);
 }

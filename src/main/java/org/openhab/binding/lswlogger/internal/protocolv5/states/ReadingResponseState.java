@@ -17,7 +17,6 @@ import java.nio.channels.InterruptedByTimeoutException;
 import java.time.Instant;
 import java.util.concurrent.TimeUnit;
 
-import org.eclipse.jdt.annotation.NonNull;
 import org.openhab.binding.lswlogger.internal.LoggerThingConfiguration;
 import org.openhab.binding.lswlogger.internal.LswLoggerBindingConstants.Common;
 import org.openhab.binding.lswlogger.internal.connection.Context;
@@ -41,7 +40,7 @@ public class ReadingResponseState<L extends LoggerThingConfiguration, C extends 
     }
 
     @Override
-    public void handle(@NonNull StateMachineSwitchable sm, @NonNull C context) {
+    public void handle(StateMachineSwitchable sm, C context) {
         new ReadingHandler(sm, context, context.config().getRefreshTime()).run();
     }
 
@@ -49,10 +48,10 @@ public class ReadingResponseState<L extends LoggerThingConfiguration, C extends 
 
         private final Instant enterTime;
         private final StateMachineSwitchable sm;
-        private final @NonNull C context;
+        private final C context;
         private final long period;
 
-        public ReadingHandler(@NonNull StateMachineSwitchable sm, @NonNull C context, long period) {
+        public ReadingHandler(StateMachineSwitchable sm, C context, long period) {
             this.period = period;
             this.enterTime = Instant.now();
             this.sm = sm;

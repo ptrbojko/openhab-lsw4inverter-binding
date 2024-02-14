@@ -8,8 +8,7 @@
   <parent>
     <groupId>org.openhab.addons</groupId>
     <artifactId>org.openhab.addons.reactor</artifactId>
-    <version>3.3.0</version>
-    <relativePath />
+    <version>4.0.3</version>
   </parent>
 
   <groupId>org.openhab.addons.bundles</groupId>
@@ -23,8 +22,8 @@
     <spotless.version>2.0.3</spotless.version>
     <spotless.check.skip>true</spotless.check.skip> <!-- Spotless disabled for now -->
     <sat.version>0.13.0</sat.version>
-    <maven.compiler.target>11</maven.compiler.target>
-    <maven.compiler.source>11</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
+    <maven.compiler.source>17</maven.compiler.source>
     <basedirRoot>etc</basedirRoot>
     <project.scm.id>github</project.scm.id>
   </properties>
@@ -72,10 +71,10 @@
     </dependency>
 
     <dependency>
-    <groupId>org.mockito</groupId>
-    <artifactId>mockito-junit-jupiter</artifactId>
-    <version>5.3.1</version>
-    <scope>test</scope>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-junit-jupiter</artifactId>
+      <version>5.3.1</version>
+      <scope>test</scope>
     </dependency>
 
     <dependency>
@@ -136,6 +135,126 @@
           <commitDevelopmentVersionAtStart>true</commitDevelopmentVersionAtStart>
           <pushRemote>true</pushRemote>
         </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>com.diffplug.spotless</groupId>
+        <artifactId>spotless-maven-plugin</artifactId>
+        <version>${spotless.version}</version>
+        <configuration>
+          <java>
+            <eclipse>
+              <file>openhab_codestyle.xml</file>
+              <version>4.13.0</version>
+            </eclipse>
+            <removeUnusedImports />
+            <importOrder>
+              <file>openhab.importorder</file>
+            </importOrder>
+            <endWithNewline />
+          </java>
+          <formats>
+            <format>
+              <!-- *.xml -->
+              <includes>
+                <include>src/**/*.xml</include>
+              </includes>
+              <excludes>
+                <exclude>**/pom.xml</exclude>
+                <exclude>src/main/resources/OH-INF/thing/**/*.xml</exclude>
+              </excludes>
+              <eclipseWtp>
+                <type>XML</type>
+                <files>
+                  <file>openhab_wst_xml_files.prefs</file>
+                </files>
+                <version>4.13.0</version>
+              </eclipseWtp>
+              <trimTrailingWhitespace />
+              <endWithNewline />
+            </format>
+            <format>
+              <!-- pom.xml -->
+              <includes>
+                <include>pom.xml</include>
+              </includes>
+              <eclipseWtp>
+                <type>XML</type>
+                <files>
+                  <file>openhab_wst_pom_file.prefs</file>
+                </files>
+                <version>4.13.0</version>
+              </eclipseWtp>
+              <trimTrailingWhitespace />
+              <endWithNewline />
+            </format>
+          </formats>
+        </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>org.openhab.tools</groupId>
+            <artifactId>openhab-codestyle</artifactId>
+            <version>${sat.version}</version>
+          </dependency>
+        </dependencies>
+        <executions>
+          <execution>
+            <id>codestyle_check</id>
+            <goals>
+              <goal>check</goal>
+            </goals>
+            <phase>initialize</phase>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>3.6.0</version>
+        <executions>
+          <execution>
+            <id>embed-dependencies</id>
+            <goals>
+              <goal>unpack-dependencies</goal>
+            </goals>
+            <configuration>
+              <includeScope>runtime</includeScope>
+              <includeTypes>jar</includeTypes>
+              <excludes>**/module-info.class</excludes>
+              <excludeGroupIds>javax.activation,org.apache.karaf.features,org.lastnpe.eea</excludeGroupIds>
+              <excludeArtifactIds>${dep.noembedding}</excludeArtifactIds>
+              <outputDirectory>${project.build.directory}/classes</outputDirectory>
+              <overWriteReleases>true</overWriteReleases>
+              <overWriteSnapshots>true</overWriteSnapshots>
+              <excludeTransitive>true</excludeTransitive>
+              <type>jar</type>
+            </configuration>
+          </execution>
+          <execution>
+            <id>unpack-eea</id>
+            <goals>
+              <goal>unpack</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>org.lastnpe.eea</groupId>
+                  <artifactId>eea-all</artifactId>
+                  <version>${eea.version}</version>
+                  <overWrite>true</overWrite>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.12.1</version>
+        <configuration combine.self="override"></configuration>
       </plugin>
 
     </plugins>

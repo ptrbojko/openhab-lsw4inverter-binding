@@ -14,14 +14,15 @@ package org.openhab.binding.lswlogger.internal;
 
 import java.util.Set;
 
-import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.lswlogger.internal.LswLoggerBindingConstants.DebugLoggerV5;
+import org.openhab.binding.lswlogger.internal.LswLoggerBindingConstants.Deye01;
 import org.openhab.binding.lswlogger.internal.LswLoggerBindingConstants.LSWLoggerV5;
 import org.openhab.binding.lswlogger.internal.LswLoggerBindingConstants.SN23xV5;
 import org.openhab.binding.lswlogger.internal.protocolv5.thing.debug.DebugLoggerHandler;
+import org.openhab.binding.lswlogger.internal.protocolv5.thing.deye.DeyeLoggerHandler;
+import org.openhab.binding.lswlogger.internal.protocolv5.thing.g3hyd.SN23xLoggerHandler;
 import org.openhab.binding.lswlogger.internal.protocolv5.thing.lsw3.LswLoggerHandler;
-import org.openhab.binding.lswlogger.internal.protocolv5.thing.sn23x.SN23xLoggerHandler;
 import org.openhab.core.thing.Thing;
 import org.openhab.core.thing.ThingTypeUID;
 import org.openhab.core.thing.binding.BaseThingHandlerFactory;
@@ -36,14 +37,14 @@ import org.osgi.service.component.annotations.Component;
  *
  * @author Piotr Bojko - Initial contribution
  */
-@NonNullByDefault
 @Component(configurationPid = "binding.lswlogger", service = ThingHandlerFactory.class)
 public class LswLoggerHandlerFactory extends BaseThingHandlerFactory {
 
     private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Set.of(
             DebugLoggerV5.THING_TYPE_ID,
             LSWLoggerV5.THING_TYPE_ID,
-            SN23xV5.THING_TYPE_ID);
+            SN23xV5.THING_TYPE_ID,
+            Deye01.THING_TYPE_ID);
 
     @Override
     public boolean supportsThingType(ThingTypeUID thingTypeUID) {
@@ -64,6 +65,10 @@ public class LswLoggerHandlerFactory extends BaseThingHandlerFactory {
 
         if (DebugLoggerV5.THING_TYPE_ID.equals(thingTypeUID)) {
             return new DebugLoggerHandler(thing);
+        }
+
+        if (Deye01.THING_TYPE_ID.equals(thingTypeUID)) {
+            return new DeyeLoggerHandler(thing);
         }
 
         return null;

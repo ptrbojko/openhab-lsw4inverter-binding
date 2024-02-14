@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions bindingId="lswlogger"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:thing="https://openhab.org/schemas/thing-description/v1.0.0"
+	xsi:schemaLocation="https://openhab.org/schemas/thing-description/v1.0.0 https://openhab.org/schemas/thing-description-1.0.0.xsd">
+
+	<thing-type id="DebugLoggerV5">
+		<label>Debug thing</label>
+		<description>This thing allows sending and receiving raw comm from your inverters logger.</description>
+
+		<channels>
+			<channel id="online" typeId="online-channel" />
+			<channel id="lastResponse" typeId="debug-response" />
+		</channels>
+
+		<config-description>
+			<parameter name="hostname" type="text" required="true">
+				<context>network-address</context>
+				<label>Logger Hostname/IP</label>
+				<description>Hostname or IP address of the device.</description>
+			</parameter>
+			<parameter name="port" type="integer" min="1" required="true">
+				<label>Port</label>
+				<description>TCP port of the device.</description>
+				<default>8899</default>
+			</parameter>
+			<parameter name="serialNumber" type="integer" required="true">
+				<context></context>
+				<label>Logger serial number</label>
+				<description>Logger serial number, those with format 17xxxx are confirmed to be supported.</description>
+			</parameter>
+			<parameter name="startRegister" type="text">
+				<label>First register</label>
+				<description>First register to query in request</description>
+				<default>0x000</default>
+			</parameter>
+			<parameter name="endRegister" type="text">
+				<label>Last register</label>
+				<description>Last register to query in request</description>
+				<default>0x020</default>
+			</parameter>
+			<parameter name="refreshTime" type="integer" required="true">
+				<label>Refresh time</label>
+				<description>Interval the device is polled in sec.</description>
+				<default>120</default>
+			</parameter>
+			<parameter name="retriesCount" type="integer">
+				<label>Number of retries</label>
+				<description>Number of connecting retries before giving up and assuming that logger is offline</description>
+				<default>10</default>
+			</parameter>
+			<parameter name="maxOfflineTime" type="integer">
+				<label>maxOfflineTime</label>
+				<description>Maximum time (in minutes) in which logger is assumed to be offline</description>
+				<default>2160</default>
+			</parameter>
+
+		</config-description>
+	</thing-type>
+
+	<thing-type id="LSWLoggerV5">
+		<label>LSW Logger (basic)</label>
+		<description>Supports basic Sofar Solar inverters</description>
+
+		<channels>
+			<channel id="online" typeId="online-channel" />
+		</channels>
+
+
+		<config-description>
+			<parameter name="hostname" type="text" required="true">
+				<context>network-address</context>
+				<label>Logger Hostname/IP</label>
+				<description>Hostname or IP address of the device.</description>
+			</parameter>
+			<parameter name="port" type="integer" min="1" required="true">
+				<label>Port</label>
+				<description>TCP port of the device.</description>
+				<default>8899</default>
+			</parameter>
+			<parameter name="serialNumber" type="integer" required="true">
+				<context></context>
+				<label>Logger serial number</label>
+				<description>Logger serial number, those with format 17xxxx are confirmed to be supported.</description>
+			</parameter>
+			<parameter name="refreshTime" type="integer" required="true">
+				<label>Refresh time</label>
+				<description>Interval the device is polled in sec.</description>
+				<default>120</default>
+			</parameter>
+			<parameter name="retriesCount" type="integer">
+				<label>Number of retries</label>
+				<description>Number of connecting retries before giving up and assuming that logger is offline</description>
+				<default>10</default>
+			</parameter>
+			<parameter name="maxOfflineTime" type="integer">
+				<label>maxOfflineTime</label>
+				<description>Maximum time (in minutes) in which logger is assumed to be offline</description>
+				<default>2160</default>
+			</parameter>
+		</config-description>
+	</thing-type>
+
+	<thing-type id="Deye01">
+		<label>Deye (beta)</label>
+		<description>Supports Deye 01</description>
+
+		<channels>
+			<channel id="online" typeId="online-channel" />
+		</channels>
+
+		<config-description>
+			<parameter name="hostname" type="text" required="true">
+				<context>network-address</context>
+				<label>Logger Hostname/IP</label>
+				<description>Hostname or IP address of the device.</description>
+			</parameter>
+			<parameter name="port" type="integer" min="1" required="true">
+				<label>Port</label>
+				<description>TCP port of the device.</description>
+				<default>8899</default>
+			</parameter>
+			<parameter name="serialNumber" type="integer" required="true">
+				<context></context>
+				<label>Logger serial number</label>
+				<description>Logger serial number, those with format 17xxxx are confirmed to be supported.</description>
+			</parameter>
+			<parameter name="refreshTime" type="integer" required="true">
+				<label>Refresh time</label>
+				<description>Interval the device is polled in sec.</description>
+				<default>120</default>
+			</parameter>
+			<parameter name="retriesCount" type="integer">
+				<label>Number of retries</label>
+				<description>Number of connecting retries before giving up and assuming that logger is offline</description>
+				<default>10</default>
+			</parameter>
+			<parameter name="maxOfflineTime" type="integer">
+				<label>maxOfflineTime</label>
+				<description>Maximum time (in minutes) in which logger is assumed to be offline</description>
+				<default>2160</default>
+			</parameter>
+		</config-description>
+	</thing-type>
+
+	<thing-type id="g3hyd01">
+		<label>G3 Hyd (beta)</label>
+		<description>Supports Sofar G3, HYD 5-xxKTL-3ph, ZCS Azzurro 3-Phase familiy</description>
+
+		<channels>
+			<channel id="online" typeId="online-channel" />
+		</channels>
+
+		<config-description>
+			<parameter name="hostname" type="text" required="true">
+				<context>network-address</context>
+				<label>Logger Hostname/IP</label>
+				<description>Hostname or IP address of the device.</description>
+			</parameter>
+			<parameter name="port" type="integer" min="1" required="true">
+				<label>Port</label>
+				<description>TCP port of the device.</description>
+				<default>8899</default>
+			</parameter>
+			<parameter name="serialNumber" type="integer" required="true">
+				<context></context>
+				<label>Logger serial number</label>
+				<description>Logger serial number, those with format 17xxxx are confirmed to be supported.</description>
+			</parameter>
+			<parameter name="refreshTime" type="integer" required="true">
+				<label>Refresh time</label>
+				<description>Interval the device is polled in sec.</description>
+				<default>120</default>
+			</parameter>
+			<parameter name="retriesCount" type="integer">
+				<label>Number of retries</label>
+				<description>Number of connecting retries before giving up and assuming that logger is offline</description>
+				<default>10</default>
+			</parameter>
+			<parameter name="maxOfflineTime" type="integer">
+				<label>maxOfflineTime</label>
+				<description>Maximum time (in minutes) in which logger is assumed to be offline</description>
+				<default>2160</default>
+			</parameter>
+		</config-description>
+
+	</thing-type>
+
+	<channel-type id="online-channel">
+		<item-type>Switch</item-type>
+		<label>Online</label>
+		<description>Determines whether logger is online/offline</description>
+		<state readOnly="true" />
+	</channel-type>
+
+	<channel-type id="serial-no">
+		<item-type>String</item-type>
+		<label>Serial number</label>
+		<description>Serial number or id</description>
+		<state readOnly="true" />
+	</channel-type>
+
+	<channel-type id="ac-frequency">
+		<item-type>Number:Frequency</item-type>
+		<label>Output Frequency</label>
+		<description>Frequency of the AC generated</description>
+		<state readOnly="true" pattern="%.2f %unit%" />
+	</channel-type>
+
+
+	<channel-type id="operating-state">
+		<item-type>String</item-type>
+		<label>Operating State</label>
+		<description>Operating state of an inverter</description>
+		<category>Status</category>
+		<state readOnly="true"/>
+	</channel-type>
+
+	<channel-type id="country-code">
+		<item-type>String</item-type>
+		<label>Country code</label>
+		<description>Country code</description>
+		<category>Status</category>
+		<state readOnly="true"/>
+	</channel-type>
+
+	<channel-type id="deye-01-operating-state">
+		<item-type>String</item-type>
+		<label>Operating State</label>
+		<description>Possible values: Stand-by, Self-check, Normal, Warning, Fault </description>
+		<category>Status</category>
+		<state readOnly="true">
+			<options>
+				<option value="Stand-by">Stand-by</option>
+				<option value="Self-check">Self-check</option>
+				<option value="Normal">Normal</option>
+				<option value="Warning">Warning</option>
+				<option value="Fault">Fault</option>
+			</options>
+		</state>
+	</channel-type>
+
+	<channel-type id="internal-temperature">
+		<item-type>Number:Temperature</item-type>
+		<label>Temperature</label>
+		<description>Temperature</description>
+		<category>Temperature</category>
+		<state readOnly="true" pattern="%.0f %unit%" />
+	</channel-type>
+
+	<channel-type id="time-period">
+		<item-type>Number:Time</item-type>
+		<label>Time</label>
+		<description>Time</description>
+		<category>Time</category>
+		<state readOnly="true" pattern="%.0f %unit%" />
+	</channel-type>
+
+
+	<channel-type id="debug-response">
+		<item-type>String</item-type>
+		<label>Debug response</label>
+		<description>Debug response</description>
+		<state readOnly="true" />
+	</channel-type>
+
+	<channel-type id="fault-channel">
+		<item-type>String</item-type>
+		<label>Fault description</label>
+		<description>Description of a fault</description>
+		<state readOnly="true" />
+	</channel-type>
+
+	<channel-type id="powerfactor-channel">
+		<item-type>Number:Dimensionless</item-type>
+		<label>Power factor</label>
+		<description>Power factor</description>
+		<category>Energy</category>
+		<state readOnly="true" pattern="%.0f %unit%" />
+	</channel-type>
+</thing:thing-descriptions>

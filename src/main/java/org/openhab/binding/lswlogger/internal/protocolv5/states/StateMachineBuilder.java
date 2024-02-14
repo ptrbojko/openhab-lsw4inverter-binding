@@ -5,9 +5,8 @@ import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Consumer;
 
-import org.eclipse.jdt.annotation.NonNull;
-import org.openhab.binding.lswlogger.internal.connection.Context;
 import org.openhab.binding.lswlogger.internal.LoggerThingConfiguration;
+import org.openhab.binding.lswlogger.internal.connection.Context;
 
 public class StateMachineBuilder<T, C extends Context<T>> {
 
@@ -16,29 +15,30 @@ public class StateMachineBuilder<T, C extends Context<T>> {
     private ProtocolState<T, C> initialState;
     private ScheduledExecutorService scheduler;
 
-    public StateMachineBuilder<T, C> addState(String description, ProtocolState<T, C> state, Consumer<RouteConfigurer<T, C>> routeConfiguration) {
+    public StateMachineBuilder<T, C> addState(String description, ProtocolState<T, C> state,
+            Consumer<RouteConfigurer<T, C>> routeConfiguration) {
         RouteBuilder<T, C> builder = new RouteBuilder<>();
         routeConfiguration.accept(builder);
         states.put(state, builder.buildForSource(description, state));
         return this;
     }
 
-    public StateMachineBuilder<T, C> setInitial(@NonNull ProtocolState<T, C> initialState) {
+    public StateMachineBuilder<T, C> setInitial(ProtocolState<T, C> initialState) {
         this.initialState = initialState;
         return this;
     }
 
-    public StateMachineBuilder<T, C> addContext(@NonNull C context) {
+    public StateMachineBuilder<T, C> addContext(C context) {
         this.context = context;
         return this;
     }
 
-    public StateMachineBuilder<T,C> addScheduler(ScheduledExecutorService service) {
+    public StateMachineBuilder<T, C> addScheduler(ScheduledExecutorService service) {
         this.scheduler = service;
         return this;
     }
 
-    public StateMachineBuilder<T, C> addConfiguration(@NonNull LoggerThingConfiguration configuration) {
+    public StateMachineBuilder<T, C> addConfiguration(LoggerThingConfiguration configuration) {
         return this;
     }
 
@@ -70,7 +70,8 @@ public class StateMachineBuilder<T, C extends Context<T>> {
         }
 
         public ProtocolStateMeta<T, C> buildForSource(String description, ProtocolState<T, C> state) {
-            return new ProtocolStateMetaImpl<T, C>(description, state, nextState, alternativeState, exceptionState, errorState);
+            return new ProtocolStateMetaImpl<T, C>(description, state, nextState, alternativeState, exceptionState,
+                    errorState);
         }
 
         @Override

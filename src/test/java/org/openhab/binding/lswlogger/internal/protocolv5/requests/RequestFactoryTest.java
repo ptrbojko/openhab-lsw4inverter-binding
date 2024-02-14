@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.nio.ByteBuffer;
 
 import org.junit.jupiter.api.Test;
-import org.openhab.binding.lswlogger.internal.ByteUtils;
+import org.openhab.binding.lswlogger.internal.bytebuffer.ByteUtils;
 import org.openhab.binding.lswlogger.internal.protocolv5.RequestFactory;
 
 public class RequestFactoryTest {

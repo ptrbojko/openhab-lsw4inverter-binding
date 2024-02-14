@@ -18,7 +18,6 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.TimeUnit;
 
-import org.eclipse.jdt.annotation.NonNull;
 import org.openhab.binding.lswlogger.internal.LoggerThingConfiguration;
 import org.openhab.binding.lswlogger.internal.connection.Context;
 import org.openhab.binding.lswlogger.internal.connection.StateMachineSwitchable;
@@ -33,7 +32,7 @@ public class WaitingToWakeupInverterReconnectingState<L extends LoggerThingConfi
     private final EnterWaitPeriodGate enterGate = new EnterWaitPeriodGate();
 
     @Override
-    public void handle(@NonNull StateMachineSwitchable sm, @NonNull C context) {
+    public void handle(StateMachineSwitchable sm, C context) {
         if (enterGate.enterWaitPeriod().plus(context.config().getMaxOfflineTime(), ChronoUnit.MINUTES)
                 .isBefore(Instant.now())) {
             sm.switchToErrorState();
@@ -61,7 +60,7 @@ public class WaitingToWakeupInverterReconnectingState<L extends LoggerThingConfi
         return (int) Math.sqrt(configuration.getMaxOfflineTime());
     }
 
-    private void close(@NonNull C context) {
+    private void close(C context) {
         try {
             context.channel().close();
         } catch (IOException e) {
