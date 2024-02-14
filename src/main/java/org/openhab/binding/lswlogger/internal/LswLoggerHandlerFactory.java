@@ -14,7 +14,6 @@ package org.openhab.binding.lswlogger.internal;
 
 import java.util.Set;
 
-import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.lswlogger.internal.LswLoggerBindingConstants.DebugLoggerV5;
 import org.openhab.binding.lswlogger.internal.LswLoggerBindingConstants.Deye01;
@@ -38,7 +37,6 @@ import org.osgi.service.component.annotations.Component;
  *
  * @author Piotr Bojko - Initial contribution
  */
-@NonNullByDefault
 @Component(configurationPid = "binding.lswlogger", service = ThingHandlerFactory.class)
 public class LswLoggerHandlerFactory extends BaseThingHandlerFactory {
 

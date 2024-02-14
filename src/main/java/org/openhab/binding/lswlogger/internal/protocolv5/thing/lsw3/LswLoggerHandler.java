@@ -61,13 +61,13 @@ public class LswLoggerHandler extends AbstractModbusLoggerHandler {
                         Extractors.SHORT_AS_TEHNTS_OF_VOLT)
                 .add(0x0007, "gridACurrent", "Grid/PV A Current", ChannelTypes.ELECTRIC_CURRENT,
                         Extractors.SHORT_AS_HUNDRETHS_OF_AMPERE)
-                .add(0x0006, "gridBVoltage", "Grid/PV B Voltage", ChannelTypes.ELECTRIC_VOLTAGE,
+                .add(0x0008, "gridBVoltage", "Grid/PV B Voltage", ChannelTypes.ELECTRIC_VOLTAGE,
                         Extractors.SHORT_AS_TEHNTS_OF_VOLT)
-                .add(0x0007, "gridBCurrent", "Grid/PV B Current", ChannelTypes.ELECTRIC_CURRENT,
+                .add(0x0009, "gridBCurrent", "Grid/PV B Current", ChannelTypes.ELECTRIC_CURRENT,
                         Extractors.SHORT_AS_HUNDRETHS_OF_AMPERE)
-                .add(0x000A, "gridAPower", "Grid/PB A Power", ChannelTypes.ELECTRIC_POWER,
+                .add(0x000A, "gridAPower", "Grid/PV A Power", ChannelTypes.ELECTRIC_POWER,
                         Extractors.SHORT_AS_DOZENS_WATT)
-                .add(0x000B, "gridBPower", "Grid/PB B Power", ChannelTypes.ELECTRIC_POWER,
+                .add(0x000B, "gridBPower", "Grid/PV B Power", ChannelTypes.ELECTRIC_POWER,
                         Extractors.SHORT_AS_DOZENS_WATT)
                 .add(0x000C, "outputActivePower", "Output active power", ChannelTypes.ELECTRIC_POWER,
                         Extractors.SHORT_AS_DOZENS_WATT)
@@ -101,8 +101,8 @@ public class LswLoggerHandler extends AbstractModbusLoggerHandler {
                 .add(0x001C, "inverterInnerTemperature", "Inverter inner temperature",
                         ChannelTypes.INTERNAL_TEMPERATURE,
                         ExtractingBuilder.extactShort().as(SIUnits.CELSIUS))
-                .add(0x0027, "country", "Country code", ChannelTypes.COUNTRY_CODE,
-                        ExtractingBuilder.extactShort().mappedTo(COUNTRY_CODES))
+                // .add(0x0027, "country", "Country code", ChannelTypes.COUNTRY_CODE,
+                //         ExtractingBuilder.extactShort().mappedTo(COUNTRY_CODES))
                 .build();
     }
 

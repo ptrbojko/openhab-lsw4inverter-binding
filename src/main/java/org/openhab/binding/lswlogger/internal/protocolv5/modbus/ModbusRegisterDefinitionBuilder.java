@@ -30,16 +30,18 @@ public class ModbusRegisterDefinitionBuilder {
         return this;
     }
 
-    public ModbusRegisterDefinitionBuilder add(int address, String channelId, String channelName, ChannelTypes channelType,
+    public ModbusRegisterDefinitionBuilder add(int address, String channelId, String channelName,
+            ChannelTypes channelType,
             Function<ByteBuffer, State> extractor) {
-        items.add(new ModbusRegistryValueDefinition(address, channelId, channelName, channelType.toId(),
-                buffer -> stateUpdate.apply(channelName, extractor.apply(buffer))));
+        items.add(new ModbusRegistryValueDefinition(address, channelId, channelName, channelType,
+                buffer -> stateUpdate.apply(channelId, extractor.apply(buffer))));
         return this;
     }
 
     public ModbusRegistryDefnition build() {
         items.sort(Comparator.comparing(ModbusRegistryValueDefinition::getRegister));
-        ByteBufferConsumer byteBufferConsumer = new ByteBufferConsumer(firstBytesToEatCount, firstRegister, lastRegister, items);
+        ByteBufferConsumer byteBufferConsumer = new ByteBufferConsumer(firstBytesToEatCount, firstRegister,
+                lastRegister, items);
         ChannelConfigurer channelConfigurer = new ChannelConfigurer(items);
         return new ModbusRegistryDefnition(firstRegister, lastRegister, channelConfigurer, byteBufferConsumer);
     }

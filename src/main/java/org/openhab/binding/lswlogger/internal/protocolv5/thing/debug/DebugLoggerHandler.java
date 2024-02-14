@@ -12,7 +12,6 @@
  */
 package org.openhab.binding.lswlogger.internal.protocolv5.thing.debug;
 
-import org.eclipse.jdt.annotation.NonNull;
 import org.openhab.binding.lswlogger.internal.LoggerThingConfiguration;
 import org.openhab.binding.lswlogger.internal.LswLoggerBindingConstants.DebugLoggerV5;
 import org.openhab.binding.lswlogger.internal.protocolv5.AbstractLoggerHandler;
@@ -42,7 +41,7 @@ public class DebugLoggerHandler extends AbstractLoggerHandler {
         super(thing);
     }
 
-     @Override
+    @Override
     protected void preInit() {
     }
 
@@ -54,8 +53,8 @@ public class DebugLoggerHandler extends AbstractLoggerHandler {
     }
 
     private StateMachine<DebugLoggerThingConfiguration, DebugLoggerHandlerContext> createStateMachine(
-            @NonNull DebugLoggerHandlerContext lswLoggerHandlerContext,
-            @NonNull LoggerThingConfiguration configAs) {
+            DebugLoggerHandlerContext lswLoggerHandlerContext,
+            LoggerThingConfiguration configAs) {
         ProtocolState<DebugLoggerThingConfiguration, DebugLoggerHandlerContext> connecting = new ConnectingState<>();
         UnrecoverableErrorState<DebugLoggerThingConfiguration, DebugLoggerHandlerContext> unrecoverableErrorState = new UnrecoverableErrorState<>();
         ConfigurableSendingRequestState<DebugLoggerHandlerContext> sendingRequestState = new ConfigurableSendingRequestState<>();
@@ -111,7 +110,7 @@ public class DebugLoggerHandler extends AbstractLoggerHandler {
         }
 
         @Override
-        protected @NonNull Class<DebugLoggerThingConfiguration> getConfigClass() {
+        protected Class<DebugLoggerThingConfiguration> getConfigClass() {
             return DebugLoggerThingConfiguration.class;
         }
     }

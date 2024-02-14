@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
 
-import org.eclipse.jdt.annotation.NonNull;
 import org.openhab.binding.lswlogger.internal.LoggerThingConfiguration;
 import org.openhab.binding.lswlogger.internal.connection.Context;
 import org.openhab.binding.lswlogger.internal.connection.StateMachineSwitchable;
@@ -32,7 +31,7 @@ public class ReconnectingState<L extends LoggerThingConfiguration, C extends Con
     private final RetriesCounter retriesCounter = new RetriesCounter();
 
     @Override
-    public void handle(@NonNull StateMachineSwitchable sm, @NonNull C context) {
+    public void handle(StateMachineSwitchable sm, C context) {
         if (retriesCounter.getRetries() > context.config().getRetriesCount()) {
             retriesCounter.clearRetries();
             sm.switchToAlternativeState();

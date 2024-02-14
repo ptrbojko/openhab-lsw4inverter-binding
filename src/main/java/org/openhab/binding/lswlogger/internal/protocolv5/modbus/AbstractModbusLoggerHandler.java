@@ -3,7 +3,6 @@ package org.openhab.binding.lswlogger.internal.protocolv5.modbus;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.eclipse.jdt.annotation.NonNull;
 import org.openhab.binding.lswlogger.internal.LoggerThingConfiguration;
 import org.openhab.binding.lswlogger.internal.protocolv5.AbstractLoggerHandler;
 import org.openhab.binding.lswlogger.internal.protocolv5.ResponseDispatcher;
@@ -86,9 +85,13 @@ public abstract class AbstractModbusLoggerHandler extends AbstractLoggerHandler 
     private void configureChannels() {
         Thing thing = getThing();
         ThingBuilder thingBuilder = editThing();
+        thingBuilder.withoutChannels(thing.getChannels().stream()
+                .filter(c -> c.getProperties().containsKey(DynamicChannels.DYNAMIC))
+                .toList());
         definitions.stream()
                 .map(ModbusRegisterDefinitionBuilder.ModbusRegistryDefnition::getChannelConfigurer)
                 .forEach(configurer -> configurer.configure(thing, thingBuilder));
+        updateThing(thingBuilder.build());
     }
 
     protected abstract List<ModbusRegisterDefinitionBuilder.ModbusRegistryDefnition> createDefinitions();
@@ -102,7 +105,7 @@ public abstract class AbstractModbusLoggerHandler extends AbstractLoggerHandler 
 
         @SuppressWarnings("null")
         @Override
-        protected @NonNull Class<LoggerThingConfiguration> getConfigClass() {
+        protected Class<LoggerThingConfiguration> getConfigClass() {
             return LoggerThingConfiguration.class;
         }
 

@@ -15,7 +15,6 @@ package org.openhab.binding.lswlogger.internal;
 import javax.measure.quantity.ElectricCurrent;
 import javax.measure.quantity.Power;
 
-import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openhab.core.library.types.QuantityType;
 import org.openhab.core.library.unit.Units;
 import org.openhab.core.thing.ThingTypeUID;
@@ -27,7 +26,6 @@ import org.openhab.core.thing.ThingTypeUID;
  *
  * @author Piotr Bojko - Initial contribution
  */
-@NonNullByDefault
 public interface LswLoggerBindingConstants {
 
     String BINDING_ID = "lswlogger";

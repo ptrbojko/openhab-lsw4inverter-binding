@@ -26,9 +26,11 @@ class ByteBufferConsumer extends AbstractDataResponseHandler {
         mrs.forEach(mr -> {
             int position = getPositionForAddress(mr.getRegister());
             if (buffer.position() > position) {
-                throw new IllegalStateException("Position ahead of addres " + mr.getRegister());
+                throw new IllegalStateException("Position ahead of addres " + mr.getRegister() + ", current "
+                        + buffer.position() + ", wanted " + position);
             }
             if (buffer.position() < position) {
+                buffer.position(position); // todo: is it fast?
             }
             mr.accept(buffer);
         });

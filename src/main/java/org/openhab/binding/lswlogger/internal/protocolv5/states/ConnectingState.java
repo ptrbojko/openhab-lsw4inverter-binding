@@ -14,7 +14,6 @@ package org.openhab.binding.lswlogger.internal.protocolv5.states;
 
 import java.net.InetSocketAddress;
 
-import org.eclipse.jdt.annotation.NonNull;
 import org.openhab.binding.lswlogger.internal.LoggerThingConfiguration;
 import org.openhab.binding.lswlogger.internal.connection.Context;
 import org.openhab.binding.lswlogger.internal.connection.StateMachineSwitchable;
@@ -27,7 +26,7 @@ public class ConnectingState<L extends LoggerThingConfiguration, C extends Conte
     private static final Logger logger = LoggerFactory.getLogger(ConnectingState.class);
 
     @Override
-    public void handle(@NonNull StateMachineSwitchable sm, @NonNull C context) {
+    public void handle(StateMachineSwitchable sm, C context) {
         context.channel().reopen(new InetSocketAddress(context.config().getHostname(), context.config().getPort()),
                 () -> sm.switchToNextState(),
                 t -> {

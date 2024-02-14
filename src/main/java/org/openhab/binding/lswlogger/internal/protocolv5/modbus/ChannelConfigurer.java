@@ -1,10 +1,9 @@
 package org.openhab.binding.lswlogger.internal.protocolv5.modbus;
 
 import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.Map;
 
+import org.openhab.binding.lswlogger.internal.ChannelTypes;
 import org.openhab.core.thing.Channel;
 import org.openhab.core.thing.ChannelUID;
 import org.openhab.core.thing.Thing;
@@ -23,18 +22,19 @@ public class ChannelConfigurer {
     }
 
     public void configure(Thing thing, ThingBuilder builder) {
-        List<Channel> channels = Stream
-                .concat(thing.getChannels().stream(),
-                        definitions.stream().map(definition -> toChannel(thing.getUID(), definition)))
-                .collect(Collectors.toList());
-        builder.withChannels(channels);
+        definitions.stream()
+                .map(definition -> toChannel(thing.getUID(), definition))
+                .forEach(builder::withChannel);
     }
 
     private Channel toChannel(ThingUID thingUUID, ModbusRegistryValueDefinition definition) {
+        ChannelTypes channelType = definition.getChannelType();
         return ChannelBuilder.create(new ChannelUID(thingUUID, definition.getChannelId()))
                 .withLabel(definition.getChannelName())
                 .withKind(ChannelKind.STATE)
-                .withType(new ChannelTypeUID(definition.getChannelType()))
+                .withType(new ChannelTypeUID(channelType.getTypeId()))
+                .withAcceptedItemType(channelType.getAcceptedItemType())
+                .withProperties(Map.of(DynamicChannels.DYNAMIC, "yes"))
                 .build();
     }
 }

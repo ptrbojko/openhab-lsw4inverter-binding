@@ -1,6 +1,5 @@
 package org.openhab.binding.lswlogger.internal.protocolv5;
 
-import org.eclipse.jdt.annotation.NonNull;
 import org.openhab.binding.lswlogger.internal.LoggerThingConfiguration;
 import org.openhab.binding.lswlogger.internal.LswLoggerBindingConstants;
 import org.openhab.binding.lswlogger.internal.connection.Channel;
@@ -86,12 +85,12 @@ public abstract class AbstractLoggerHandler extends BaseThingHandler {
         }
 
         @Override
-        public final void updateState(@NonNull String uuid, @NonNull State state) {
+        public final void updateState(String uuid, State state) {
             handler.updateState(uuid, state);
         }
 
         @Override
-        public final void updateStatus(@NonNull ThingStatus status) {
+        public final void updateStatus(ThingStatus status) {
             handler.updateStatus(status);
         }
 
@@ -100,7 +99,6 @@ public abstract class AbstractLoggerHandler extends BaseThingHandler {
             return handler.getConfigAs(getConfigClass());
         }
 
-        @NonNull
         protected abstract Class<C> getConfigClass();
 
     }

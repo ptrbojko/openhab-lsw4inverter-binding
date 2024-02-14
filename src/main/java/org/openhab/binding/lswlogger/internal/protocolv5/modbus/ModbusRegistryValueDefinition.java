@@ -3,14 +3,16 @@ package org.openhab.binding.lswlogger.internal.protocolv5.modbus;
 import java.nio.ByteBuffer;
 import java.util.function.Consumer;
 
+import org.openhab.binding.lswlogger.internal.ChannelTypes;
+
 class ModbusRegistryValueDefinition {
     private final long register;
     private final Consumer<ByteBuffer> extractor;
     private final String channelName;
-    private final String channelType;
+    private final ChannelTypes channelType;
     private final String channelId;
 
-    public ModbusRegistryValueDefinition(long register, String channelId, String channelName, String channelType,
+    public ModbusRegistryValueDefinition(long register, String channelId, String channelName, ChannelTypes channelType,
             Consumer<ByteBuffer> extractor) {
         this.register = register;
         this.channelId = channelId;
@@ -27,7 +29,7 @@ class ModbusRegistryValueDefinition {
         return channelName;
     }
 
-    public String getChannelType() {
+    public ChannelTypes getChannelType() {
         return channelType;
     }
 
