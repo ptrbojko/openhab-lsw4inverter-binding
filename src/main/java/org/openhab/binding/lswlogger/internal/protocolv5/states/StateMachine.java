@@ -9,7 +9,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import org.eclipse.jdt.annotation.NonNull;
 import org.openhab.binding.lswlogger.internal.connection.Context;
 import org.openhab.binding.lswlogger.internal.connection.StateMachineSwitchable;
 import org.slf4j.Logger;
@@ -20,17 +19,15 @@ public class StateMachine<T, C extends Context<T>> implements StateMachineSwitch
     private static final Logger logger = LoggerFactory.getLogger(StateMachine.class);
 
     private final Map<ProtocolState<T, C>, ProtocolStateMeta<T, C>> states;
-    @NonNull
     private final ScheduledExecutorService scheduler;
-    @NonNull
     private final C context;
     private final BlockingQueue<ProtocolStateMeta<T, C>> nextStateQueue;
     private ProtocolStateMeta<T, C> current;
     private Optional<ScheduledFuture<?>> future = Optional.empty();
 
-    public StateMachine(@NonNull Map<ProtocolState<T, C>, ProtocolStateMeta<T, C>> states,
-            @NonNull ProtocolState<T, C> initialState, @NonNull C context,
-            @NonNull ScheduledExecutorService scheduler) {
+    public StateMachine(Map<ProtocolState<T, C>, ProtocolStateMeta<T, C>> states,
+            ProtocolState<T, C> initialState, C context,
+            ScheduledExecutorService scheduler) {
         this.states = states;
         this.nextStateQueue = new ArrayBlockingQueue<>(3);
         this.nextStateQueue.add(states.get(initialState));
@@ -138,7 +135,7 @@ public class StateMachine<T, C extends Context<T>> implements StateMachineSwitch
         }
 
         @Override
-        public void handle(@NonNull StateMachineSwitchable stateMachine, @NonNull C context) {
+        public void handle(StateMachineSwitchable stateMachine, C context) {
             runnable.run();
         }
 

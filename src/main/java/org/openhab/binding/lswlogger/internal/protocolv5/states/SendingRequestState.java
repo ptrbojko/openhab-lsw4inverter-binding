@@ -12,7 +12,6 @@
  */
 package org.openhab.binding.lswlogger.internal.protocolv5.states;
 
-import org.eclipse.jdt.annotation.NonNull;
 import org.openhab.binding.lswlogger.internal.LoggerThingConfiguration;
 import org.openhab.binding.lswlogger.internal.connection.Context;
 import org.openhab.binding.lswlogger.internal.connection.StateMachineSwitchable;
@@ -29,12 +28,12 @@ public class SendingRequestState<C extends Context<LoggerThingConfiguration>>
     }
 
     @Override
-    protected int getFromRegister(@NonNull StateMachineSwitchable sm, @NonNull C context) {
+    protected int getFromRegister( StateMachineSwitchable sm,  C context) {
         return fromRegister;
     }
 
     @Override
-    protected int getToRegister(@NonNull StateMachineSwitchable sm, @NonNull C context) {
+    protected int getToRegister( StateMachineSwitchable sm,  C context) {
         return toRegister;
     }
 

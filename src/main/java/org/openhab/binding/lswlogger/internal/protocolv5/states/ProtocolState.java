@@ -12,12 +12,11 @@
  */
 package org.openhab.binding.lswlogger.internal.protocolv5.states;
 
-import org.eclipse.jdt.annotation.NonNull;
 import org.openhab.binding.lswlogger.internal.connection.Context;
 import org.openhab.binding.lswlogger.internal.connection.StateMachineSwitchable;
 
 public interface ProtocolState<T, C extends Context<T>> {
 
-    void handle(@NonNull StateMachineSwitchable stateMachine, @NonNull C context);
+    void handle(StateMachineSwitchable stateMachine, C context);
 
 }

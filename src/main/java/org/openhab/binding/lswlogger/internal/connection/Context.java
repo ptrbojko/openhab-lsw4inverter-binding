@@ -12,7 +12,6 @@
  */
 package org.openhab.binding.lswlogger.internal.connection;
 
-import org.eclipse.jdt.annotation.NonNull;
 import org.openhab.core.thing.ThingStatus;
 import org.openhab.core.types.State;
 
@@ -24,9 +23,9 @@ public interface Context<T> {
 
     void notifyCannotRecover();
 
-    void updateState(@NonNull String uuid, @NonNull State state);
+    void updateState(String uuid, State state);
 
-    void updateStatus(@NonNull ThingStatus online);
+    void updateStatus(ThingStatus online);
 
     T config();
 

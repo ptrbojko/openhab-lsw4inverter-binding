@@ -13,8 +13,6 @@
 package org.openhab.binding.lswlogger.internal.protocolv5;
 
 import java.nio.ByteBuffer;
-import java.util.List;
-import java.util.function.Consumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,12 +20,6 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractDataResponseHandler implements ResponseHandler {
 
     private final static Logger logger = LoggerFactory.getLogger(AbstractDataResponseHandler.class);
-
-    private final List<Consumer<ByteBuffer>> extractors;
-
-    public AbstractDataResponseHandler(ExtractorsBuilder builder) {
-        this.extractors = builder.build();
-    }
 
     @Override
     public boolean handle(ByteBuffer buffer) {
@@ -40,10 +32,12 @@ public abstract class AbstractDataResponseHandler implements ResponseHandler {
 
     protected abstract boolean accepts(ByteBuffer buffer);
 
+    protected abstract void accept(ByteBuffer byteBuffer);
+
     private void extract(ByteBuffer buffer) {
         logger.debug("Trying to extract message, length {} bytes", buffer.remaining());
         performActionsBeforeExtraction(buffer);
-        extractors.forEach(e -> e.accept(buffer));
+        accept(buffer);
     }
 
     protected void performActionsBeforeExtraction(ByteBuffer buffer) {

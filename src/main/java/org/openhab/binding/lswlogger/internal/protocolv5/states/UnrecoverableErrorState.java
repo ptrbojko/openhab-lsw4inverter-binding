@@ -12,7 +12,6 @@
  */
 package org.openhab.binding.lswlogger.internal.protocolv5.states;
 
-import org.eclipse.jdt.annotation.NonNull;
 import org.openhab.binding.lswlogger.internal.LoggerThingConfiguration;
 import org.openhab.binding.lswlogger.internal.connection.Context;
 import org.openhab.binding.lswlogger.internal.connection.StateMachineSwitchable;
@@ -25,7 +24,7 @@ public class UnrecoverableErrorState<L extends LoggerThingConfiguration, C exten
     private static final Logger logger = LoggerFactory.getLogger(UnrecoverableErrorState.class);
 
     @Override
-    public void handle(@NonNull StateMachineSwitchable sm, @NonNull C context) {
+    public void handle(StateMachineSwitchable sm, C context) {
         logger.error("Giving up connecting to logger");
         context.notifyCannotRecover();
     }
