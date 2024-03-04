@@ -175,7 +175,7 @@ public class SN23xLoggerHandler extends AbstractModbusLoggerHandler {
 
                 .add(0x04AE, "pvExtActivePower", "PV external active power",
                         ChannelTypes.ELECTRICAL_ENERGY, Extractors.SHORT_AS_DOZENS_WATT)
-                .add(0x04AF, " loadSysActivePower", "Load sys active power", ChannelTypes.ELECTRICAL_ENERGY,
+                .add(0x04AF, "loadSysActivePower", "Load sys active power", ChannelTypes.ELECTRICAL_ENERGY,
                         Extractors.SHORT_AS_DOZENS_WATT)
 
                 .build();
