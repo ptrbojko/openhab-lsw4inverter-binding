@@ -145,7 +145,7 @@
 
 	<thing-type id="g3hyd01">
 		<label>G3 Hyd (beta)</label>
-		<description>Supports Sofar G3, HYD 5-xxKTL-3ph, ZCS Azzurro 3-Phase familiy</description>
+		<description>Supports Sofar G3, HYD 5-20KTL-3ph, ZCS Azzurro 3-Phase familiy</description>
 
 		<channels>
 			<channel id="online" typeId="online-channel" />
