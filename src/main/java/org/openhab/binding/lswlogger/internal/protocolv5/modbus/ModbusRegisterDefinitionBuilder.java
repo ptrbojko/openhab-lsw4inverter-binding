@@ -38,25 +38,25 @@ public class ModbusRegisterDefinitionBuilder {
         return this;
     }
 
-    public ModbusRegistryDefnition build() {
+    public ModbusRegistryDefinition build() {
         items.sort(Comparator.comparing(ModbusRegistryValueDefinition::getRegister));
         ByteBufferConsumer byteBufferConsumer = new ByteBufferConsumer(firstBytesToEatCount, firstRegister,
                 lastRegister, items);
         ChannelConfigurer channelConfigurer = new ChannelConfigurer(items);
-        return new ModbusRegistryDefnition(firstRegister, lastRegister, channelConfigurer, byteBufferConsumer);
+        return new ModbusRegistryDefinition(firstRegister, lastRegister, channelConfigurer, byteBufferConsumer);
     }
 
     public Consumer<ByteBuffer> shift(int count) {
         return buffer -> buffer.position(count + buffer.position());
     }
 
-    public static class ModbusRegistryDefnition {
+    public static class ModbusRegistryDefinition {
         private final int firstRegister;
         private final int lastRegister;
         private final ChannelConfigurer channelConfigurer;
         private final ByteBufferConsumer byteBufferConsumer;
 
-        private ModbusRegistryDefnition(int firstRegister, int lastRegister, ChannelConfigurer channelConfigurer,
+        private ModbusRegistryDefinition(int firstRegister, int lastRegister, ChannelConfigurer channelConfigurer,
                 ByteBufferConsumer byteBufferConsumer) {
             this.firstRegister = firstRegister;
             this.lastRegister = lastRegister;

@@ -11,6 +11,6 @@ public interface StateMachineSwitchable {
 
     void switchToErrorState();
 
-    void schedule(int calculateWaitPeriod, TimeUnit minutes, Runnable runnable);
+    void schedule(long calculateWaitPeriod, TimeUnit unit, Runnable runnable);
 
 }

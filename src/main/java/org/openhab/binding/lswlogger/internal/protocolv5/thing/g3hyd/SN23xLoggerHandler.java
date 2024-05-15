@@ -19,7 +19,7 @@ import org.openhab.binding.lswlogger.internal.bytebuffer.ExtractingBuilder;
 import org.openhab.binding.lswlogger.internal.bytebuffer.Extractors;
 import org.openhab.binding.lswlogger.internal.protocolv5.modbus.AbstractModbusLoggerHandler;
 import org.openhab.binding.lswlogger.internal.protocolv5.modbus.ModbusRegisterDefinitionBuilder;
-import org.openhab.binding.lswlogger.internal.protocolv5.modbus.ModbusRegisterDefinitionBuilder.ModbusRegistryDefnition;
+import org.openhab.binding.lswlogger.internal.protocolv5.modbus.ModbusRegisterDefinitionBuilder.ModbusRegistryDefinition;
 import org.openhab.core.library.unit.SIUnits;
 import org.openhab.core.thing.Thing;
 
@@ -40,13 +40,13 @@ public class SN23xLoggerHandler extends AbstractModbusLoggerHandler {
     }
 
     @Override
-    protected List<ModbusRegistryDefnition> createDefinitions() {
+    protected List<ModbusRegistryDefinition> createDefinitions() {
         return List.of(create0x0404To0x042EDefinition(), create0x0480To0x04AFDefinition(),
                 create0x0684To0x069BDefinition());
     }
 
-    private ModbusRegistryDefnition create0x0404To0x042EDefinition() {
-        return new ModbusRegisterDefinitionBuilder(0x0404, 0x0422, this::updateState)
+    private ModbusRegistryDefinition create0x0404To0x042EDefinition() {
+        return new ModbusRegisterDefinitionBuilder(0x0404, 0x0422, this::updateState) 
                 .setFirstBytesEater(28)
                 .add(0x0404, "operatingState", "Operating state", ChannelTypes.OPERATING_STATE,
                         ExtractingBuilder.extactShort().mappedTo(OPERATING_STATES))
@@ -83,8 +83,8 @@ public class SN23xLoggerHandler extends AbstractModbusLoggerHandler {
                 .build();
     }
 
-    private ModbusRegistryDefnition create0x0480To0x04AFDefinition() {
-        return new ModbusRegisterDefinitionBuilder(0x0480, 0x04BC, this::updateState)
+    private ModbusRegistryDefinition create0x0480To0x04AFDefinition() {
+        return new ModbusRegisterDefinitionBuilder(0x0484, 0x04AF, this::updateState)
                 .setFirstBytesEater(28)
                 .add(0x0484, "gridFrequency", "Grid frequency", ChannelTypes.AC_FREQUENCY,
                         Extractors.HUNDRETHS_OF_HERZ)
@@ -181,7 +181,7 @@ public class SN23xLoggerHandler extends AbstractModbusLoggerHandler {
                 .build();
     }
 
-    private ModbusRegistryDefnition create0x0684To0x069BDefinition() {
+    private ModbusRegistryDefinition create0x0684To0x069BDefinition() {
         return new ModbusRegisterDefinitionBuilder(0x0680, 0x069B, this::updateState)
                 .setFirstBytesEater(28)
                 .add(0x0684, "todayEnergyProduction", "Daily PV Generation", ChannelTypes.ELECTRICAL_ENERGY,

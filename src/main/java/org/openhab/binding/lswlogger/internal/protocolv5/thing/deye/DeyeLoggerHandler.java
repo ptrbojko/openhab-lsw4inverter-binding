@@ -7,7 +7,7 @@ import org.openhab.binding.lswlogger.internal.bytebuffer.ExtractingBuilder;
 import org.openhab.binding.lswlogger.internal.bytebuffer.Extractors;
 import org.openhab.binding.lswlogger.internal.protocolv5.modbus.AbstractModbusLoggerHandler;
 import org.openhab.binding.lswlogger.internal.protocolv5.modbus.ModbusRegisterDefinitionBuilder;
-import org.openhab.binding.lswlogger.internal.protocolv5.modbus.ModbusRegisterDefinitionBuilder.ModbusRegistryDefnition;
+import org.openhab.binding.lswlogger.internal.protocolv5.modbus.ModbusRegisterDefinitionBuilder.ModbusRegistryDefinition;
 import org.openhab.core.library.unit.SIUnits;
 import org.openhab.core.library.unit.Units;
 import org.openhab.core.thing.Thing;
@@ -22,11 +22,11 @@ public class DeyeLoggerHandler extends AbstractModbusLoggerHandler {
 	}
 
 	@Override
-	protected List<ModbusRegistryDefnition> createDefinitions() {
+	protected List<ModbusRegistryDefinition> createDefinitions() {
 		return List.of(createOx0003To0x0080Definition());
 	}
 
-	private ModbusRegistryDefnition createOx0003To0x0080Definition() {
+	private ModbusRegistryDefinition createOx0003To0x0080Definition() { 
 		return new ModbusRegisterDefinitionBuilder(0x003, 0x080, this::updateState)
 				.setFirstBytesEater(28)
 				.add(0x0003, "inverter-id", "Inverter Id", ChannelTypes.SERIAL_NO,

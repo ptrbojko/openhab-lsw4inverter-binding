@@ -19,7 +19,7 @@ import org.openhab.binding.lswlogger.internal.bytebuffer.ExtractingBuilder;
 import org.openhab.binding.lswlogger.internal.bytebuffer.Extractors;
 import org.openhab.binding.lswlogger.internal.protocolv5.modbus.AbstractModbusLoggerHandler;
 import org.openhab.binding.lswlogger.internal.protocolv5.modbus.ModbusRegisterDefinitionBuilder;
-import org.openhab.binding.lswlogger.internal.protocolv5.modbus.ModbusRegisterDefinitionBuilder.ModbusRegistryDefnition;
+import org.openhab.binding.lswlogger.internal.protocolv5.modbus.ModbusRegisterDefinitionBuilder.ModbusRegistryDefinition;
 import org.openhab.core.library.unit.SIUnits;
 import org.openhab.core.library.unit.Units;
 import org.openhab.core.thing.Thing;
@@ -47,11 +47,11 @@ public class LswLoggerHandler extends AbstractModbusLoggerHandler {
     }
 
     @Override
-    protected List<ModbusRegistryDefnition> createDefinitions() {
+    protected List<ModbusRegistryDefinition> createDefinitions() {
         return List.of(create0x000To0x027Definition());
     }
 
-    private ModbusRegistryDefnition create0x000To0x027Definition() {
+    private ModbusRegistryDefinition create0x000To0x027Definition() {
         return new ModbusRegisterDefinitionBuilder(0x0000, 0x0027, this::updateState)
                 .setFirstBytesEater(28)
                 .add(0x000, "operatingState", "Operating state", ChannelTypes.OPERATING_STATE,

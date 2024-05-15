@@ -42,7 +42,15 @@ class ByteBufferConsumer extends AbstractDataResponseHandler {
 
     @Override
     protected boolean accepts(ByteBuffer buffer) {
-        return buffer.remaining() >= headerSize + ((lastAddres - firstAddress) / 2);
+        int remaining = buffer.remaining();
+        long wantedMessageSize = headerSize + ((lastAddres - firstAddress) * 2);
+        return (wantedMessageSize + 2) == remaining || (wantedMessageSize + 4) == remaining;
+    }
+
+    @Override
+    public String toString() {
+        return "ByteBufferConsumer [headerSize=" + headerSize + ", firstAddress=" + firstAddress + ", lastAddres="
+                + lastAddres + ", mrs=" + mrs + "]";
     }
 
 }
