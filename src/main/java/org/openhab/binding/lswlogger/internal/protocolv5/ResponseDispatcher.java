@@ -30,7 +30,7 @@ public class ResponseDispatcher {
         for (ResponseHandler handler : handlers) {
             buffer.rewind();
             if (handler.handle(buffer)) {
-                logger.debug("Handler {} matched response", handler.getClass());
+                logger.debug("Handler matched response - {}", handler);
                 break;
             }
         }
