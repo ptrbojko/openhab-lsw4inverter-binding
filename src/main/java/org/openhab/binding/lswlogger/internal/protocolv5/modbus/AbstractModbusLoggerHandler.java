@@ -6,7 +6,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.openhab.binding.lswlogger.internal.LoggerThingConfiguration;
 import org.openhab.binding.lswlogger.internal.protocolv5.AbstractLoggerHandler;
 import org.openhab.binding.lswlogger.internal.protocolv5.ResponseDispatcher;
-import org.openhab.binding.lswlogger.internal.protocolv5.modbus.ModbusRegisterDefinitionBuilder.ModbusRegistryDefnition;
+import org.openhab.binding.lswlogger.internal.protocolv5.modbus.ModbusRegisterDefinitionBuilder.ModbusRegistryDefinition;
 import org.openhab.binding.lswlogger.internal.protocolv5.states.ConnectingState;
 import org.openhab.binding.lswlogger.internal.protocolv5.states.ProtocolState;
 import org.openhab.binding.lswlogger.internal.protocolv5.states.ReadingResponseState;
@@ -22,7 +22,7 @@ import org.openhab.core.thing.binding.builder.ThingBuilder;
 
 public abstract class AbstractModbusLoggerHandler extends AbstractLoggerHandler {
 
-    private List<ModbusRegistryDefnition> definitions;
+    private List<ModbusRegistryDefinition> definitions;
 
     public AbstractModbusLoggerHandler(Thing thing) {
         super(thing);
@@ -64,12 +64,12 @@ public abstract class AbstractModbusLoggerHandler extends AbstractLoggerHandler 
                                     .addExceptionRoute(reconnectingState));
                 });
         builder.addState("Reconnecting", reconnectingState,
-                routes -> routes.addNextRoute(firstSARStates.get().getResponseState())
+                routes -> routes.addNextRoute(firstSARStates.get().getSendState())
                         .addAlternativeRoute(
                                 waitingToWakeupInverterReconnectingState)
                         .addExceptionRoute(reconnectingState))
-                .addState("Watining for inverter to wakeup", waitingToWakeupInverterReconnectingState,
-                        route -> route.addNextRoute(firstSARStates.get().sendState)
+                .addState("Waiting for inverter to wakeup", waitingToWakeupInverterReconnectingState,
+                        route -> route.addNextRoute(firstSARStates.get().getSendState())
                                 .addExceptionRoute(
                                         waitingToWakeupInverterReconnectingState)
                                 .addErrorRoute(unrecoverableErrorState));
@@ -89,12 +89,12 @@ public abstract class AbstractModbusLoggerHandler extends AbstractLoggerHandler 
                 .filter(c -> c.getProperties().containsKey(DynamicChannels.DYNAMIC))
                 .toList());
         definitions.stream()
-                .map(ModbusRegisterDefinitionBuilder.ModbusRegistryDefnition::getChannelConfigurer)
+                .map(ModbusRegisterDefinitionBuilder.ModbusRegistryDefinition::getChannelConfigurer)
                 .forEach(configurer -> configurer.configure(thing, thingBuilder));
         updateThing(thingBuilder.build());
     }
 
-    protected abstract List<ModbusRegisterDefinitionBuilder.ModbusRegistryDefnition> createDefinitions();
+    protected abstract List<ModbusRegisterDefinitionBuilder.ModbusRegistryDefinition> createDefinitions();
 
     // todo: handle zeroing channels when offline
     private class ModbusLoggerHandlerContext extends AbstractLoggerHandler.AbstractContext<LoggerThingConfiguration> {
@@ -111,7 +111,7 @@ public abstract class AbstractModbusLoggerHandler extends AbstractLoggerHandler 
 
     }
 
-    private SendAndReciveStates toSendAndReciveStates(ModbusRegistryDefnition defnition) {
+    private SendAndReciveStates toSendAndReciveStates(ModbusRegistryDefinition defnition) {
         SendingRequestState<ModbusLoggerHandlerContext> sendState = new SendingRequestState<>(
                 defnition.getFirstRegister(), defnition.getLastRegister());
         ReadingResponseState<LoggerThingConfiguration, ModbusLoggerHandlerContext> readResponseState = new ReadingResponseState<>(

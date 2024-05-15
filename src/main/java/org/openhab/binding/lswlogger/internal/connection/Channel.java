@@ -5,10 +5,8 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
-import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,33 +15,26 @@ public class Channel {
 
     private static final Logger logger = LoggerFactory.getLogger(Channel.class);
 
-    private static final int BUFFERS_COUNT = 4;
     private static final int SENDING_TIMEOUT = 10;
 
-    private final ArrayBlockingQueue<ByteBuffer> buffers = new ArrayBlockingQueue<>(BUFFERS_COUNT);
-    private final ArrayBlockingQueue<ByteBuffer> messages = new ArrayBlockingQueue<>(BUFFERS_COUNT);
-
-    private AsynchronousSocketChannel chnl;
-    private Throwable throwable;
-
-    public Channel() {
-        Stream.generate(() -> ByteBuffer.allocate(1024)).limit(BUFFERS_COUNT).forEach(buffers::add);
-    }
+    private final ByteBuffer buffer = ByteBuffer.allocate(1024);
+    private AsynchronousSocketChannel asyncChannel;
+    private ChannelReader reader = new PassErrorChannelReader();
 
     public synchronized void reopen(InetSocketAddress address, Runnable connectedHandler,
             Consumer<Throwable> failedOpenHandler, Consumer<Throwable> failedConnectHandler) {
         try {
-            throwable = null;
-            if (chnl != null && chnl.isOpen()) {
-                chnl.close();
+            if (asyncChannel != null && asyncChannel.isOpen()) {
+                asyncChannel.close();
             }
-            chnl = AsynchronousSocketChannel.open();
-            chnl.connect(address, null, new CompletionHandler<Void, Void>() {
+            asyncChannel = AsynchronousSocketChannel.open();
+            asyncChannel.connect(address, null, new CompletionHandler<Void, Void>() {
 
                 @Override
                 public void completed(Void v1, Void v2) {
-                    listen();
+                    logger.info("Connected to inverter/logger");
                     connectedHandler.run();
+                    listen();
                 }
 
                 @Override
@@ -60,76 +51,105 @@ public class Channel {
     }
 
     private void listen() {
-        logger.debug("Listening for data, buffers {} messages {}", buffers.size(), messages.size());
-        ByteBuffer buffer = buffers.remove();
+        logger.debug("Listening for new message from logger");
         buffer.clear();
-        chnl.read(buffer, null, new CompletionHandler<Integer, Void>() {
+        asyncChannel.read(buffer, null, new CompletionHandler<Integer, Void>() {
 
             @Override
             public void completed(Integer bytesRead, Void attachment) {
                 logger.debug("Received {} bytes", bytesRead);
                 buffer.flip();
-                try {
-                    messages.put(buffer);
-                    if (chnl.isOpen() || bytesRead >= 0d) {
-                        listen();
-                    }
-                } catch (InterruptedException e) {
-                    throwable = e;
+                if (bytesRead < 0) {
+                    reader.onFail(new IllegalStateException("Channel reads -1 bytes. Failing channel"));
+                    return;
                 }
+                if (!asyncChannel.isOpen()) {
+                    logger.warn("Channel closed");
+                    reader.onFail(new IllegalStateException("Channel closed. Failing channel."));
+                    return;
+                }
+                reader.onRead(buffer);
+                listen();
             }
 
             @Override
             public void failed(Throwable t, Void v) {
-                try {
-                    buffers.put(buffer);
-                } catch (InterruptedException e) {
-                    logger.error("Abnormal case in channel wrapper", e);
-                }
-                throwable = t;
+                reader.onFail(t);
             }
 
         });
     }
 
     public void write(ByteBuffer message, Runnable sentHandler, Consumer<Throwable> failedHandler) {
-        chnl.write(message, SENDING_TIMEOUT, TimeUnit.SECONDS, message, new CompletionHandler<Integer, ByteBuffer>() {
+        asyncChannel.write(message, SENDING_TIMEOUT, TimeUnit.SECONDS, message,
+                new CompletionHandler<Integer, ByteBuffer>() {
 
-            @Override
-            public void completed(Integer bytesWritten, ByteBuffer msg) {
-                if (bytesWritten < 0) {
-                    failedHandler.accept(null);
-                }
-                if (msg.hasRemaining()) {
-                    chnl.write(msg, null, this);
-                    return;
-                }
-                sentHandler.run();
-            }
+                    @Override
+                    public void completed(Integer bytesWritten, ByteBuffer msg) {
+                        if (bytesWritten < 0) {
+                            failedHandler.accept(null);
+                        }
+                        if (msg.hasRemaining()) {
+                            asyncChannel.write(msg, null, this);
+                            return;
+                        }
+                        sentHandler.run();
+                    }
 
-            @Override
-            public void failed(Throwable arg0, ByteBuffer arg1) {
-                failedHandler.accept(arg0);
-            }
-        });
+                    @Override
+                    public void failed(Throwable error, ByteBuffer abufferg1) {
+                        failedHandler.accept(error);
+                    }
+                });
     }
 
-    public void read(Consumer<ByteBuffer> reader, Runnable noMessageHandler, Consumer<Throwable> failedHandler) {
-        logger.debug("Consuming messages, buffers {} messages {}", buffers.size(), messages.size());
-        if (throwable != null) {
-            failedHandler.accept(throwable);
-            return;
-        }
-        for (ByteBuffer message = messages.poll(); message != null; message = messages.poll()) {
-            reader.accept(message);
-            buffers.offer(message);
-        }
-        noMessageHandler.run();
+    public void startReading(ChannelReader reader) {
+        this.reader.transfer(reader);
+        this.reader = reader;
     }
 
     public void close() throws IOException {
-        chnl.close();
-        throwable = null;
+        stopReading();
+        asyncChannel.close();
+    }
+
+    public void stopReading() {
+        logger.debug("Detaching channel reader");
+        ChannelReader reader = new PassErrorChannelReader();
+        this.reader.transfer(reader);
+        this.reader = reader;
+    }
+
+    public interface ChannelReader {
+        void onRead(ByteBuffer buffer);
+
+        void onFail(Throwable throwable);
+
+        void transfer(ChannelReader reader);
+    }
+
+    private final static class PassErrorChannelReader implements ChannelReader {
+
+        private Throwable error;
+
+        @Override
+        public void onRead(ByteBuffer buffer) {
+            logger.warn("Forgetting message, length {}", buffer.remaining());
+        }
+
+        @Override
+        public void onFail(Throwable throwable) {
+            this.error = throwable;
+        }
+
+        @Override
+        public void transfer(ChannelReader reader) {
+            if (error != null) {
+                reader.onFail(error);
+            }
+            ;
+        }
+
     }
 
 }

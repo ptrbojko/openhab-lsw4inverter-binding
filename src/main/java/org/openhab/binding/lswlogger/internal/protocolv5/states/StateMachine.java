@@ -37,22 +37,22 @@ public class StateMachine<T, C extends Context<T>> implements StateMachineSwitch
 
     @Override
     public void switchToNextState() {
-        switchTo(current.getNextState());
+        cancelSchedulesAndSwitchToState(current.getNextState());
     }
 
     @Override
     public void switchToAlternativeState() {
-        switchTo(current.getAlternativeState());
+        cancelSchedulesAndSwitchToState(current.getAlternativeState());
     }
 
     @Override
     public void switchToExceptionState() {
-        switchTo(current.getExceptioState());
+        cancelSchedulesAndSwitchToState(current.getExceptioState());
     }
 
     @Override
     public void switchToErrorState() {
-        switchTo(current.getErrorState());
+        cancelSchedulesAndSwitchToState(current.getErrorState());
     }
 
     public void stop() {
@@ -92,6 +92,10 @@ public class StateMachine<T, C extends Context<T>> implements StateMachineSwitch
 
     private void waitForScheduledTask(ScheduledFuture<?> sf) {
         try {
+            if (sf.isCancelled() || sf.isDone()) {
+                logger.warn("Schedule already canceled or done");
+                return;
+            }
             sf.get();
         } catch (InterruptedException | ExecutionException e) {
             logger.warn("Scheduled task interrupted", e);
@@ -99,7 +103,7 @@ public class StateMachine<T, C extends Context<T>> implements StateMachineSwitch
     }
 
     @Override
-    public void schedule(int time, TimeUnit unit, Runnable job) {
+    public void schedule(long time, TimeUnit unit, Runnable job) {
         logger.debug("Trying to schedule task in {} {} during state {}", time, unit, current.getDescription());
 
         if (!future.map(ScheduledFuture::isDone).orElse(true)) {
@@ -107,11 +111,23 @@ public class StateMachine<T, C extends Context<T>> implements StateMachineSwitch
             return;
         }
         future = Optional
-                .of(scheduler.schedule(() -> switchTo(new MetaRunnableWrapper<T, C>(current, job)), time, unit));
+                .of(scheduler.schedule(() -> {
+                    logger.debug("Running scheduled task as wrapped state");
+                    switchTo(new MetaRunnableWrapper<T, C>(current, job));
+                    future = Optional.empty();
+                }, time, unit));
     }
 
-    private void switchTo(ProtocolState<T, C> state) {
+    private void cancelSchedulesAndSwitchToState(ProtocolState<T, C> state) {
+        cancelScheduleIfNeeded();
         switchTo(states.get(state));
+    }
+
+    private void cancelScheduleIfNeeded() {
+        logger.debug("Trying to cancel schedule");
+        future.ifPresent(f -> {
+            logger.warn("Found a schedule to cancel");
+            f.cancel(false);});
     }
 
     private void switchTo(ProtocolStateMeta<T, C> stateMeta) {
